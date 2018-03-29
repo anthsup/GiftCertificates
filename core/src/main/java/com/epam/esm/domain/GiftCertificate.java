@@ -2,6 +2,8 @@ package com.epam.esm.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 public class GiftCertificate extends BaseDomain {
     private String name;
@@ -10,6 +12,15 @@ public class GiftCertificate extends BaseDomain {
     private LocalDate creationDate;
     private LocalDate lastModificationDate;
     private long durationInDays;
+    private List<Tag> tags;
+
+    public List<Tag> getTags() {
+        return Collections.unmodifiableList(tags);
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
 
     public String getName() {
         return name;

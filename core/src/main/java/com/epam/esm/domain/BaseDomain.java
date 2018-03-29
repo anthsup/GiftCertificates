@@ -4,11 +4,14 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 abstract class BaseDomain {
-    private static final AtomicLong counter = new AtomicLong();
-    private long id = counter.getAndIncrement();
+    private long id;
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override
