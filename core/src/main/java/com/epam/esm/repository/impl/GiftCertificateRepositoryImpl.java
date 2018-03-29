@@ -10,8 +10,8 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
@@ -37,7 +37,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public void update(GiftCertificate certificate) {
-        checkForNewTags(certificate);
+        addNewTags(certificate);
         jdbcOperations.update(UPDATE_BY_ID, certificate.getName(), certificate.getDescription(),
                 certificate.getPrice(), certificate.getCreationDate(), certificate.getLastModificationDate(),
                 certificate.getDurationInDays(), certificate.getId());
@@ -45,7 +45,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public void create(GiftCertificate certificate) {
-        checkForNewTags(certificate);
+        addNewTags(certificate);
         jdbcOperations.update(INSERT_CERTIFICATE, certificate.getId(), certificate.getName(),
                 certificate.getDescription(), certificate.getPrice(), certificate.getCreationDate(),
                 certificate.getLastModificationDate(), certificate.getDurationInDays());
@@ -71,18 +71,12 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         jdbcOperations.update(DELETE_BY_ID, id);
     }
 
-    private void checkForNewTags(GiftCertificate certificate) {
-        List<Tag> newTags = new ArrayList<>();
-        for (Tag tag : certificate.getTags()) {
-            if (tagRepository.read(tag.getId()) == null) {
-                newTags.add(tag);
-            }
+    private void addNewTags(GiftCertificate certificate) {
+        List<Tag> newTags = certificate.getTags().stream()
+                .filter(tag -> tagRepository.read(tag.getId()) == null).collect(Collectors.toList());
+        if (!newTags.isEmpty()) {
+            newTags.forEach(tag -> tagRepository.create(tag));
+            newTags.forEach(tag -> certificateTagRepository.create(certificate.getId(), tag.getId()));
         }
-        addNewTags(certificate.getId(), newTags);
-    }
-
-    private void addNewTags(long certificateId, List<Tag> newTags) {
-        newTags.forEach(tag -> tagRepository.create(tag));
-        newTags.forEach(tag -> certificateTagRepository.create(certificateId, tag.getId()));
     }
 }
