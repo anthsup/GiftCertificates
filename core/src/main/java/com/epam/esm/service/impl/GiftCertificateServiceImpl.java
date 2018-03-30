@@ -8,12 +8,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
-    private GiftCertificateRepository certificateRepository;
-
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateRepository certificateRepository) {
-        this.certificateRepository = certificateRepository;
-    }
+    private GiftCertificateRepository certificateRepository;
 
     @Override
     public void update(GiftCertificate certificate) {
@@ -21,8 +17,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public void add(GiftCertificate certificate) {
-        certificateRepository.create(certificate);
+    public GiftCertificate add(GiftCertificate certificate) {
+        return certificateRepository.create(certificate);
     }
 
     @Override

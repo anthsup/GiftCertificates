@@ -10,12 +10,8 @@ public class GiftCertificateTagRepositoryImpl implements GiftCertificateTagRepos
     private static final String INSERT_CERTIFICATE_TAG = "INSERT INTO certificate_tag " +
             "(certificate_id, tag_id) VALUES (?, ?)";
 
-    private JdbcOperations jdbcOperations;
-
     @Autowired
-    public GiftCertificateTagRepositoryImpl(JdbcOperations jdbcOperations) {
-        this.jdbcOperations = jdbcOperations;
-    }
+    private JdbcOperations jdbcOperations;
 
     @Override
     public void create(long certificateId, long tagId) {

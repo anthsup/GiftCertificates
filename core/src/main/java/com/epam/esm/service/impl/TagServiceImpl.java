@@ -8,16 +8,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TagServiceImpl implements TagService {
+    @Autowired
     private TagRepository tagRepository;
 
-    @Autowired
-    public TagServiceImpl(TagRepository tagRepository) {
-        this.tagRepository = tagRepository;
-    }
-
     @Override
-    public void add(Tag tag) {
-        tagRepository.create(tag);
+    public Tag add(Tag tag) {
+        return tagRepository.create(tag);
     }
 
     @Override

@@ -12,16 +12,13 @@ public class TagRepositoryImpl implements TagRepository {
     private static final String SELECT_BY_ID = "SELECT * FROM tag WHERE id = ?";
     private static final String DELETE_BY_ID = "DELETE FROM tag WHERE id = ?";
 
+    @Autowired
     private JdbcOperations jdbcOperations;
 
-    @Autowired
-    public TagRepositoryImpl(JdbcOperations jdbcOperations) {
-        this.jdbcOperations = jdbcOperations;
-    }
-
     @Override
-    public void create(Tag tag) {
+    public Tag create(Tag tag) {
         jdbcOperations.update(INSERT_TAG, tag.getId(), tag.getName());
+        return tag;
     }
 
     @Override

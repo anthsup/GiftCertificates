@@ -6,26 +6,37 @@ import com.epam.esm.repository.impl.TagRepositoryImpl;
 import com.epam.esm.service.impl.TagServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TagServiceImplTest {
-    private TagService tagService;
+    @Mock
     private TagRepository tagRepository;
+
+    @InjectMocks
+    private TagService tagService = new TagServiceImpl();
+
     private Tag tag;
 
     @Before
     public void setUp() {
-        tagRepository = mock(TagRepositoryImpl.class);
-        tagService = new TagServiceImpl(tagRepository);
         tag = new Tag();
+        tag.setId(42);
     }
 
     @Test
     public void add() {
-        tagService.add(tag);
+        when(tagRepository.create(tag)).thenReturn(tag);
+        Tag actualTag = tagService.add(tag);
+
         verify(tagRepository, times(1)).create(tag);
+        assertEquals(tag, actualTag);
     }
 
     @Test

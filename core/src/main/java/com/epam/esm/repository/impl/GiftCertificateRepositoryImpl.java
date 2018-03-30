@@ -3,10 +3,11 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.GiftCertificateTagRepository;
-import com.epam.esm.repository.TagRepository;
+import com.epam.esm.service.GiftCertificateTagService;
+import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -23,17 +24,14 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private static final String SELECT_BY_ID = "SELECT * FROM certificate WHERE id = ?";
     private static final String DELETE_BY_ID = "DELETE FROM certificate WHERE id = ?";
 
+    @Autowired
     private JdbcOperations jdbcOperations;
-    private TagRepository tagRepository;
-    private GiftCertificateTagRepository certificateTagRepository;
 
     @Autowired
-    public GiftCertificateRepositoryImpl(JdbcOperations jdbcOperations, TagRepository tagRepository,
-                                         GiftCertificateTagRepository certificateTagRepository) {
-        this.jdbcOperations = jdbcOperations;
-        this.tagRepository = tagRepository;
-        this.certificateTagRepository = certificateTagRepository;
-    }
+    private TagService tagService;
+
+    @Autowired
+    private GiftCertificateTagService certificateTagService;
 
     @Override
     public void update(GiftCertificate certificate) {
@@ -44,11 +42,12 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public void create(GiftCertificate certificate) {
+    public GiftCertificate create(GiftCertificate certificate) {
         addNewTags(certificate);
         jdbcOperations.update(INSERT_CERTIFICATE, certificate.getId(), certificate.getName(),
                 certificate.getDescription(), certificate.getPrice(), certificate.getCreationDate(),
                 certificate.getLastModificationDate(), certificate.getDurationInDays());
+        return certificate;
     }
 
     @Override
@@ -73,10 +72,10 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     private void addNewTags(GiftCertificate certificate) {
         List<Tag> newTags = certificate.getTags().stream()
-                .filter(tag -> tagRepository.read(tag.getId()) == null).collect(Collectors.toList());
+                .filter(tag -> tagService.get(tag.getId()) == null).collect(Collectors.toList());
         if (!newTags.isEmpty()) {
-            newTags.forEach(tag -> tagRepository.create(tag));
-            newTags.forEach(tag -> certificateTagRepository.create(certificate.getId(), tag.getId()));
+            newTags.forEach(tag -> tagService.add(tag));
+            newTags.forEach(tag -> certificateTagService.add(certificate.getId(), tag.getId()));
         }
     }
 }

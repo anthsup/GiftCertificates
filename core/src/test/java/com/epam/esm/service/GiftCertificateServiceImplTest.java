@@ -6,19 +6,26 @@ import com.epam.esm.repository.impl.GiftCertificateRepositoryImpl;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class GiftCertificateServiceImplTest {
-    private GiftCertificateService certificateService;
+    @InjectMocks
+    private GiftCertificateService certificateService = new GiftCertificateServiceImpl();
+
+    @Mock
     private GiftCertificateRepository certificateRepository;
+
     private GiftCertificate certificate;
 
     @Before
     public void setUp() {
-        certificateRepository = mock(GiftCertificateRepositoryImpl.class);
-        certificateService = new GiftCertificateServiceImpl(certificateRepository);
         certificate = new GiftCertificate();
     }
 
@@ -30,8 +37,11 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     public void add() {
-        certificateService.add(certificate);
+        when(certificateRepository.create(certificate)).thenReturn(certificate);
+        GiftCertificate actualCertificate = certificateService.add(certificate);
+
         verify(certificateRepository, times(1)).create(certificate);
+        assertEquals(certificate, actualCertificate);
     }
 
     @Test
