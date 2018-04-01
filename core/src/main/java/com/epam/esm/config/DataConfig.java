@@ -1,10 +1,9 @@
 package com.epam.esm.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.epam.esm.datasource.CustomDataSource;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -14,33 +13,15 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = "com.epam.esm")
 @PropertySource("classpath:application.properties")
 public class DataConfig {
-    @Value("${db.driver}")
-    private String driverClassName;
-
-    @Value("${db.url}")
-    private String dbUrl;
-
-    @Value("${db.username}")
-    private String dbUsername;
-
-    @Value("${db.password}")
-    private String dbPassword;
-
     @Bean
-    public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    // TODO change to custom connection pool later
     @Bean
     @Profile("!test")
-    public DataSource dataSource() {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName(driverClassName);
-        ds.setUrl(dbUrl);
-        ds.setUsername(dbUsername);
-        ds.setPassword(dbPassword);
-        return ds;
+    public DataSource defaultDataSource() {
+        return CustomDataSource.getInstance();
     }
 
     @Bean
