@@ -16,6 +16,74 @@ public class GiftCertificate {
     private long durationInDays;
     private List<Tag> tags;
 
+    public GiftCertificate() {}
+
+    private GiftCertificate(Builder builder) {
+        id = builder.id;
+        name = builder.name;
+        description = builder.description;
+        price = builder.price;
+        creationDate = builder.creationDate;
+        lastModificationDate = builder.lastModificationDate;
+        durationInDays = builder.durationInDays;
+        tags = builder.tags;
+    }
+
+    public static class Builder {
+        private long id;
+        private String name;
+        private String description;
+        private BigDecimal price;
+        private LocalDate creationDate = LocalDate.now();
+        private LocalDate lastModificationDate = LocalDate.now();
+        private long durationInDays;
+        private List<Tag> tags;
+
+        public Builder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder price(BigDecimal price) {
+            this.price = price;
+            return this;
+        }
+
+        public Builder creationDate(LocalDate creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastModificationDate(LocalDate lastModificationDate) {
+            this.lastModificationDate = lastModificationDate;
+            return this;
+        }
+
+        public Builder durationInDays(long durationInDays) {
+            this.durationInDays = durationInDays;
+            return this;
+        }
+
+        public Builder tags(List<Tag> tags) {
+            this.tags = tags;
+            return this;
+        }
+
+        public GiftCertificate build() {
+            return new GiftCertificate(this);
+        }
+    }
+
     public long getId() {
         return id;
     }
@@ -25,7 +93,10 @@ public class GiftCertificate {
     }
 
     public List<Tag> getTags() {
-        return Collections.unmodifiableList(tags);
+        if (tags != null) {
+            return Collections.unmodifiableList(tags);
+        }
+        return null;
     }
 
     public void setTags(List<Tag> tags) {

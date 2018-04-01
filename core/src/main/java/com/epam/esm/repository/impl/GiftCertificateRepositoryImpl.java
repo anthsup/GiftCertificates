@@ -6,12 +6,13 @@ import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.service.GiftCertificateTagService;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Repository
@@ -44,25 +45,30 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public GiftCertificate create(GiftCertificate certificate) {
         addNewTags(certificate);
-        jdbcOperations.update(INSERT_CERTIFICATE, certificate.getId(), certificate.getName(),
+        if (jdbcOperations.update(INSERT_CERTIFICATE, certificate.getId(), certificate.getName(),
                 certificate.getDescription(), certificate.getPrice(), certificate.getCreationDate(),
-                certificate.getLastModificationDate(), certificate.getDurationInDays());
-        return certificate;
+                certificate.getLastModificationDate(), certificate.getDurationInDays()) > 0) {
+            return certificate;
+        }
+        return null;
     }
 
+    // TODO populate tags field?
     @Override
     public GiftCertificate read(long id) {
-        return jdbcOperations.queryForObject(SELECT_BY_ID, (rs, i) -> {
-            GiftCertificate certificate = new GiftCertificate();
-            certificate.setId(rs.getLong("id"));
-            certificate.setName(rs.getString("name"));
-            certificate.setDescription(rs.getString("description"));
-            certificate.setPrice(rs.getBigDecimal("price"));
-            certificate.setCreationDate(rs.getObject("creation_date", LocalDate.class));
-            certificate.setLastModificationDate(rs.getObject("modification_date", LocalDate.class));
-            certificate.setDurationInDays(rs.getLong("duration_days"));
-            return certificate;
-        }, id);
+        try {
+            return jdbcOperations.queryForObject(SELECT_BY_ID, (rs, i) -> new GiftCertificate.Builder()
+                    .id(rs.getLong("id"))
+                    .name(rs.getString("name"))
+                    .description(rs.getString("description"))
+                    .price(rs.getBigDecimal("price"))
+                    .creationDate(rs.getObject("creation_date", LocalDate.class))
+                    .lastModificationDate(rs.getObject("modification_date", LocalDate.class))
+                    .durationInDays(rs.getLong("duration_days"))
+                    .build(), id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
@@ -71,11 +77,15 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     private void addNewTags(GiftCertificate certificate) {
-        List<Tag> newTags = certificate.getTags().stream()
-                .filter(tag -> tagService.get(tag.getId()) == null).collect(Collectors.toList());
-        if (!newTags.isEmpty()) {
-            newTags.forEach(tag -> tagService.add(tag));
-            newTags.forEach(tag -> certificateTagService.add(certificate.getId(), tag.getId()));
+        List<Tag> tags = certificate.getTags();
+        if (!Objects.isNull(tags) && !tags.isEmpty()) {
+            List<Tag> newTags = tags.stream()
+                    .filter(tag -> tagService.get(tag.getId()) == null).collect(Collectors.toList());
+
+            if (!newTags.isEmpty()) {
+                newTags.forEach(tag -> tagService.add(tag));
+                newTags.forEach(tag -> certificateTagService.add(certificate.getId(), tag.getId()));
+            }
         }
     }
 }

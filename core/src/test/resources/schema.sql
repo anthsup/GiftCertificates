@@ -4,11 +4,11 @@ CREATE TABLE certificate
 (
   id serial NOT NULL,
   name character varying(120) NOT NULL,
-  description text NOT NULL,
-  price numeric(10,2) NOT NULL,
+  description text,
+  price numeric(10,2),
   creation_date date NOT NULL,
   modification_date date,
-  duration_days integer NOT NULL,
+  duration_days integer,
   CONSTRAINT gift_certificate_pkey PRIMARY KEY (id)
 );
 

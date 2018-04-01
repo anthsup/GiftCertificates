@@ -1,5 +1,6 @@
 package com.epam.esm.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,11 +10,22 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 
-// TODO probably gonna be refactored into smaller ones later
 @Configuration
 @ComponentScan(basePackages = "com.epam.esm")
 @PropertySource("classpath:application.properties")
-public class AppConfig {
+public class DataConfig {
+    @Value("${db.driver}")
+    private String driverClassName;
+
+    @Value("${db.url}")
+    private String dbUrl;
+
+    @Value("${db.username}")
+    private String dbUsername;
+
+    @Value("${db.password}")
+    private String dbPassword;
+
     @Bean
     public static PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
@@ -21,13 +33,13 @@ public class AppConfig {
 
     // TODO change to custom connection pool later
     @Bean
-    @Profile("dev")
+    @Profile("!test")
     public DataSource dataSource() {
         DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("${db.driver}");
-        ds.setUrl("${db.url}");
-        ds.setUsername("${db.username}");
-        ds.setPassword("${db.password}");
+        ds.setDriverClassName(driverClassName);
+        ds.setUrl(dbUrl);
+        ds.setUsername(dbUsername);
+        ds.setPassword(dbPassword);
         return ds;
     }
 
@@ -37,7 +49,7 @@ public class AppConfig {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.HSQL)
                 .addScript("classpath:schema.sql")
-//                .addScript("classpath:test-data.sql")
+                .addScript("classpath:test-data.sql")
                 .build();
     }
 
