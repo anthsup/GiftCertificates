@@ -5,11 +5,17 @@ import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {
-    private static final String INSERT_TAG = "INSERT INTO tag (id, name) VALUES (?, ?)";
+    private static final String INSERT_TAG = "INSERT INTO tag (name) VALUES (?)";
     private static final String SELECT_BY_ID = "SELECT * FROM tag WHERE id = ?";
     private static final String DELETE_BY_ID = "DELETE FROM tag WHERE id = ?";
 
@@ -18,10 +24,14 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Tag create(Tag tag) {
-        if (jdbcOperations.update(INSERT_TAG, tag.getId(), tag.getName()) > 0) {
-            return tag;
-        }
-        return null;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcOperations.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(INSERT_TAG, new String[]{"id"});
+            stmt.setString(1, tag.getName());
+            return stmt;
+        }, keyHolder);
+        tag.setId(keyHolder.getKey().longValue());
+        return tag;
     }
 
     @Override

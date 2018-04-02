@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DataConfig.class)
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 public class GiftCertificateRepositoryImplTest {
     @Autowired
     private GiftCertificateRepository certificateRepository;

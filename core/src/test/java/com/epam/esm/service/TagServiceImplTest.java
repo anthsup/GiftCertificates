@@ -2,7 +2,6 @@ package com.epam.esm.service;
 
 import com.epam.esm.domain.Tag;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.repository.impl.TagRepositoryImpl;
 import com.epam.esm.service.impl.TagServiceImpl;
 import org.junit.Before;
 import org.junit.Test;

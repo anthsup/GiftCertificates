@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/certificates")
@@ -55,5 +57,13 @@ public class GiftCertificateController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long certificateId) {
         certificateService.delete(certificateId);
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public List<GiftCertificate> search(@RequestParam Optional<Long> tagId, @RequestParam Optional<String> name,
+                                        @RequestParam Optional<String> description,
+                                        @RequestParam Optional<String> sortBy) {
+        return certificateService.search(tagId, name, description, sortBy);
     }
 }

@@ -22,9 +22,6 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     @Value("${pool.capacity}")
     private int poolCapacity;
 
-    @Value("${pool.initialSize}")
-    private int poolInitialSize;
-
     @Value("${pool.timeout.seconds}")
     private int timeoutSeconds;
 
@@ -54,14 +51,8 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
             connectionCount = new AtomicInteger();
             lock = new ReentrantLock();
             Class.forName(driverClassName);
-            for (int i = 0; i < poolInitialSize; i++) {
-                pool.offer(DriverManager.getConnection(dbUrl, dbUsername, dbPassword));
-                connectionCount.incrementAndGet();
-            }
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Could not load JDBC driver class [" + driverClassName + "]", e);
-        } catch (SQLException e) {
-            throw new CustomDataSourceException("Couldn't instantiate connection pool", e);
         }
     }
 

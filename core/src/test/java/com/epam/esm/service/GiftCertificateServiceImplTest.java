@@ -2,7 +2,6 @@ package com.epam.esm.service;
 
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.impl.GiftCertificateRepositoryImpl;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

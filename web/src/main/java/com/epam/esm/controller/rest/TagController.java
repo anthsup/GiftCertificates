@@ -2,9 +2,7 @@ package com.epam.esm.controller.rest;
 
 import com.epam.esm.controller.rest.util.RestPreConditions;
 import com.epam.esm.domain.Tag;
-import com.epam.esm.exception.EmptyRequestBodyException;
 import com.epam.esm.service.TagService;
-import org.postgresql.shaded.com.ongres.scram.common.util.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
