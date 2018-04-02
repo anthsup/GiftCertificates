@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.domain.Tag;
+import com.epam.esm.exception.ValidationException;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.impl.TagServiceImpl;
 import org.junit.Before;
@@ -11,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,7 +32,7 @@ public class TagServiceImplTest {
     }
 
     @Test
-    public void add() {
+    public void addReturnsTagWhenGivenValidArg() {
         when(tagRepository.create(tag)).thenReturn(tag);
         Tag actualTag = tagService.add(tag);
 
@@ -38,13 +40,27 @@ public class TagServiceImplTest {
         assertEquals(tag, actualTag);
     }
 
+    @Test(expected = ValidationException.class)
+    public void addThrowsExceptionWhenGivenNull() {
+        tagService.add(null);
+    }
+
     @Test
-    public void get() {
+    public void getReturnsTagWhenGivenValidId() {
         when(tagRepository.read(tag.getId())).thenReturn(tag);
         Tag actualTag = tagService.get(tag.getId());
 
         verify(tagRepository, times(1)).read(tag.getId());
         assertEquals(tag, actualTag);
+    }
+
+    @Test
+    public void getReturnsNullWhenGivenInvalidId() {
+        when(tagRepository.read(13)).thenReturn(null);
+        Tag actualTag = tagService.get(13);
+
+        verify(tagRepository, times(1)).read(13);
+        assertNull(actualTag);
     }
 
     @Test

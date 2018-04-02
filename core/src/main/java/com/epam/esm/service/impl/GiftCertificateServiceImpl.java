@@ -2,15 +2,18 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.domain.Tag;
+import com.epam.esm.exception.ValidationException;
 import com.epam.esm.repository.GiftCertificateRepository;
 import com.epam.esm.repository.GiftCertificateTagRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,22 +42,23 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificate add(GiftCertificate certificate) {
+        if (certificate == null) {
+            throw new ValidationException("GiftCertificate you've provided is null!");
+        }
         addNewTags(certificate);
         return certificateRepository.create(certificate);
     }
 
     @Override
     public GiftCertificate get(long id) {
-        try {
             GiftCertificate certificate = certificateRepository.read(id);
-            List<Tag> certificateTags = certificateTagRepository.getCertificateTags(certificate.getId())
-                    .stream().map(tagId -> tagRepository.read(tagId))
-                    .collect(Collectors.toList());
-            certificate.setTags(certificateTags);
+            if (certificate != null && !certificateTagRepository.getCertificateTagsId(certificate.getId()).isEmpty()) {
+                List<Tag> certificateTags = certificateTagRepository.getCertificateTagsId(certificate.getId())
+                        .stream().map(tagId -> tagRepository.read(tagId))
+                        .collect(Collectors.toList());
+                certificate.setTags(certificateTags);
+            }
             return certificate;
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
     }
 
     @Override

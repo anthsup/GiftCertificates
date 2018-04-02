@@ -96,7 +96,7 @@ public class GiftCertificate {
         if (tags != null) {
             return Collections.unmodifiableList(tags);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public String getName() {

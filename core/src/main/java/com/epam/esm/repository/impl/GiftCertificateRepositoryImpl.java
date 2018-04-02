@@ -3,11 +3,15 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +19,7 @@ import java.util.List;
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     private static final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, creation_date, modification_date, duration_days) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_BY_ID = "UPDATE certificate SET name = ?, description = ?, price = ?, " +
             "creation_date = ?, modification_date = ?, duration_days = ? WHERE id = ?";
     private static final String SELECT_BY_ID = "SELECT * FROM certificate WHERE id = ?";
@@ -33,7 +37,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public List<GiftCertificate> search(String query, Object... params) {
-        return jdbcOperations.query(query, params, this::mapRow);
+        return jdbcOperations.query(query, params, (rs, rowNum) -> mapRow(rs));
     }
 
     @Override
@@ -55,7 +59,11 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public GiftCertificate read(long id) {
-        return jdbcOperations.queryForObject(SELECT_BY_ID, this::mapRow, id);
+        try {
+            return jdbcOperations.queryForObject(SELECT_BY_ID, (rs, rowNum) -> mapRow(rs), id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
@@ -63,7 +71,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
         jdbcOperations.update(DELETE_BY_ID, id);
     }
 
-    private GiftCertificate mapRow(ResultSet rs, int rowNum) throws SQLException {
+    private GiftCertificate mapRow(ResultSet rs) throws SQLException {
         return new GiftCertificate.Builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))

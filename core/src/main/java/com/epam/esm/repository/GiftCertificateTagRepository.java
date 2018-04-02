@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface GiftCertificateTagRepository {
     void create(long certificateId, long tagId);
-    List<Long> getCertificateTags(long certificateId);
+    List<Long> getCertificateTagsId(long certificateId);
 }

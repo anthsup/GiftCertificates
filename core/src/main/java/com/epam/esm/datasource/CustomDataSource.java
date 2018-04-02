@@ -61,7 +61,7 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     }
 
     @Override
-    public Connection getConnection() throws CustomDataSourceException {
+    public Connection getConnection() {
         Connection connection;
         try {
             connection = pool.poll(timeoutSeconds, TimeUnit.SECONDS);
@@ -69,9 +69,8 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
             if (connection == null && connectionCount.get() < poolCapacity) {
                 connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
                 pool.offer(connection);
-                connectionCount.incrementAndGet();
             }
-
+            connectionCount.incrementAndGet();
             if (connection == null) {
                 throw new CustomDataSourceException("Too many connections.");
             }
@@ -121,6 +120,8 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     }
 
     private static class CustomDataSourceHolder {
+        private CustomDataSourceHolder() {}
+
         private static final CustomDataSource INSTANCE = new CustomDataSource();
     }
 }
