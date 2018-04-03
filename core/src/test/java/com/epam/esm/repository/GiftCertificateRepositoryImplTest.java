@@ -11,7 +11,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -23,13 +25,19 @@ public class GiftCertificateRepositoryImplTest {
     private GiftCertificateRepository certificateRepository;
 
     private GiftCertificate certificate;
-    private String searchQuery;
+    private Optional<Long> tag;
+    private Optional<String> name;
+    private Optional<String> description;
+    private Optional<String> sortBy;
 
     @Before
     public void setUp() {
         certificate = new GiftCertificate.Builder().name("certificate").id(42L)
                 .price(BigDecimal.TEN).build();
-        searchQuery = "SELECT * FROM certificate WHERE id IN (SELECT certificate_id FROM certificate_tag WHERE tag_id = ?);";
+        tag = Optional.of(1L);
+        name = Optional.empty();
+        description = Optional.empty();
+        sortBy = Optional.of("name");
     }
 
     @Test
@@ -64,13 +72,14 @@ public class GiftCertificateRepositoryImplTest {
 
     @Test
     public void searchFindsValidCertificates() {
-        List<GiftCertificate> found = certificateRepository.search(searchQuery, 1L);
-        assertTrue(!found.isEmpty());
+        List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
+        assertFalse(found.isEmpty());
     }
 
     @Test
     public void searchDoesntFindInvalidCertificates() {
-        List<GiftCertificate> found = certificateRepository.search(searchQuery, 45L);
+        tag = Optional.of(42L);
+        List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
         assertTrue(found.isEmpty());
     }
 }

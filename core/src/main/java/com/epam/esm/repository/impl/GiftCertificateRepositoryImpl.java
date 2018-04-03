@@ -13,7 +13,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
@@ -36,8 +38,11 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public List<GiftCertificate> search(String query, Object... params) {
-        return jdbcOperations.query(query, params, (rs, rowNum) -> mapRow(rs));
+    public List<GiftCertificate> search(Optional<Long> tag, Optional<String> name, Optional<String> description,
+                                        Optional<String> sortBy) {
+        List<Object> params = constructSearchQuery(tag, name, description, sortBy);
+
+        return jdbcOperations.query((String) params.remove(params.size() - 1), params.toArray(), (rs, rowNum) -> mapRow(rs));
     }
 
     @Override
@@ -81,5 +86,45 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 .lastModificationDate(rs.getObject("modification_date", LocalDate.class))
                 .durationInDays(rs.getLong("duration_days"))
                 .build();
+    }
+
+    private List<Object> constructSearchQuery(Optional<Long> tag, Optional<String> name, Optional<String> description,
+                                              Optional<String> sortBy) {
+        StringBuilder query = new StringBuilder("SELECT * FROM certificate WHERE ");
+        String likeQuery = "id IN (SELECT * FROM searchlikeid(?, ?))";
+        List<Object> queryAndParams = new LinkedList<>();
+
+        if (tag.isPresent()) {
+            query.append("id IN (SELECT certificate_id FROM certificate_tag WHERE tag_id = ?)");
+            queryAndParams.add(tag.get());
+            if (name.isPresent() || description.isPresent()) {
+                query.append(" AND ");
+            }
+        }
+
+        if (name.isPresent()) {
+            query.append(likeQuery);
+            queryAndParams.add("name");
+            queryAndParams.add(name.get());
+        } else if (description.isPresent()) {
+            query.append(likeQuery);
+            queryAndParams.add("description");
+            queryAndParams.add(description.get());
+        }
+
+        if (!tag.isPresent() && !name.isPresent() && !description.isPresent()) {
+            query.append("TRUE");
+        }
+
+        if (sortBy.isPresent()) {
+            if (sortBy.get().startsWith("-")) {
+                query.append(String.format(" ORDER BY %s", sortBy.get().substring(1)));
+                query.append(" DESC");
+            } else {
+                query.append(String.format(" ORDER BY %s", sortBy.get()));
+            }
+        }
+        queryAndParams.add(query.append(";").toString());
+        return queryAndParams;
     }
 }

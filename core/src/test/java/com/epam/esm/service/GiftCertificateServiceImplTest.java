@@ -3,7 +3,7 @@ package com.epam.esm.service;
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.exception.ValidationException;
 import com.epam.esm.repository.GiftCertificateRepository;
-import com.epam.esm.repository.GiftCertificateTagRepository;
+import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,11 +31,9 @@ public class GiftCertificateServiceImplTest {
     private GiftCertificateRepository certificateRepository;
 
     @Mock
-    private GiftCertificateTagRepository certificateTagRepository;
+    private TagRepository tagRepository;
 
     private GiftCertificate certificate;
-    private String expectedQuery;
-    private List<Object> testList;
     private Optional<Long> tag;
     private Optional<String> name;
     private Optional<String> description;
@@ -44,9 +42,6 @@ public class GiftCertificateServiceImplTest {
     @Before
     public void setUp() {
         certificate = new GiftCertificate.Builder().id(42L).name("certif").price(BigDecimal.TEN).build();
-        expectedQuery = "SELECT * FROM certificate WHERE id IN (SELECT certificate_id FROM certificate_tag WHERE tag_id = ?)" +
-                " AND id IN (SELECT * FROM searchlikeid(?, ?)) ORDER BY name;";
-        testList = new LinkedList<>();
         tag = Optional.of(1L);
         name = Optional.of("cert");
         description = Optional.empty();
@@ -75,7 +70,7 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     public void getReturnsGiftCertificateWhenGivenValidId() {
-        when(certificateTagRepository.getCertificateTagsId(certificate.getId())).thenReturn(Collections.emptyList());
+        when(tagRepository.getCertificateTagsId(certificate.getId())).thenReturn(Collections.emptyList());
         when(certificateRepository.read(certificate.getId())).thenReturn(certificate);
         GiftCertificate actualCertificate = certificateService.get(certificate.getId());
 
@@ -100,29 +95,10 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     public void search() {
-        testList.add(1L);
-        testList.add("name");
-        testList.add("cert");
-        when(certificateRepository.search(expectedQuery, testList.toArray())).thenReturn(Collections.EMPTY_LIST);
+        when(certificateRepository.search(tag, name, description, sortBy)).thenReturn(Collections.EMPTY_LIST);
         List<GiftCertificate> certificates = certificateService.search(tag, name, description, sortBy);
 
-        verify(certificateRepository, times(1)).search(expectedQuery, testList.toArray());
-        assertEquals(Collections.EMPTY_LIST, certificates);
-    }
-
-    @Test
-    public void searchWithDescription() {
-        name = Optional.empty();
-        description = Optional.of("cool");
-        testList.add(1L);
-        testList.add("description");
-        testList.add("cool");
-        expectedQuery = "SELECT * FROM certificate WHERE id IN (SELECT certificate_id FROM certificate_tag WHERE tag_id = ?)" +
-                " AND id IN (SELECT * FROM searchlikeid(?, ?)) ORDER BY name;";
-        when(certificateRepository.search(expectedQuery, testList.toArray())).thenReturn(Collections.EMPTY_LIST);
-        List<GiftCertificate> certificates = certificateService.search(tag, name, description, sortBy);
-
-        verify(certificateRepository, times(1)).search(expectedQuery, testList.toArray());
+        verify(certificateRepository, times(1)).search(tag, name, description, sortBy);
         assertEquals(Collections.EMPTY_LIST, certificates);
     }
 }
