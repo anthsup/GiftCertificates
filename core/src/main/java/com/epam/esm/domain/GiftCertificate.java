@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-public class GiftCertificate {
-    private long id;
+public class GiftCertificate extends BaseDomain {
     private String name;
     private String description;
     private BigDecimal price;
@@ -19,7 +17,7 @@ public class GiftCertificate {
     public GiftCertificate() {}
 
     private GiftCertificate(Builder builder) {
-        id = builder.id;
+        this.setId(builder.id);
         name = builder.name;
         description = builder.description;
         price = builder.price;
@@ -84,14 +82,6 @@ public class GiftCertificate {
         }
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public List<Tag> getTags() {
         if (tags != null) {
             return Collections.unmodifiableList(tags);
@@ -129,22 +119,5 @@ public class GiftCertificate {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GiftCertificate that = (GiftCertificate) o;
-        return id == that.id &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(description, that.description) &&
-                Objects.equals(price, that.price) &&
-                Objects.equals(creationDate, that.creationDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, price, creationDate);
     }
 }

@@ -24,9 +24,13 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private static final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, creation_date, modification_date, duration_days) " +
             "VALUES (:name, :description, :price, :creationDate, :lastModificationDate, :durationInDays)";
-    private static final String UPDATE_BY_ID = "UPDATE certificate SET name = :name, description = :description, price = :price, " +
-            "creation_date = :creationDate, modification_date = :lastModificationDate, duration_days = :durationInDays WHERE id = :id";
-    private static final String SELECT_BY_ID = "SELECT * FROM certificate WHERE id = :id";
+    private static final String UPDATE_BY_ID = "UPDATE certificate " +
+            "SET name = :name, description = :description, price = :price, " +
+            "creation_date = :creationDate, modification_date = :lastModificationDate, duration_days = :durationInDays " +
+            "WHERE id = :id";
+    private static final String SELECT_BY_ID = "SELECT " +
+            "id, name, description, price, creation_date, modification_date, duration_days " +
+            "FROM certificate WHERE id = :id";
     private static final String DELETE_BY_ID = "DELETE FROM certificate WHERE id = :id";
 
     @Autowired
@@ -82,7 +86,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 .build();
     }
 
-    private Map constructSearchQuery(Optional<Long> tag, Optional<String> name, Optional<String> description,
+    private Map<String, Object> constructSearchQuery(Optional<Long> tag, Optional<String> name, Optional<String> description,
                                               Optional<String> sortBy) {
         StringBuilder query = new StringBuilder("SELECT * FROM certificate WHERE ");
         String likeQuery = "id IN (SELECT * FROM searchlikeid(:column, :like))";

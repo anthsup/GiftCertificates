@@ -16,11 +16,11 @@ import java.util.List;
 @Repository
 public class TagRepositoryImpl implements TagRepository {
     private static final String INSERT_TAG = "INSERT INTO tag (name) VALUES (:name)";
-    private static final String SELECT_TAG_BY_ID = "SELECT * FROM tag WHERE id = :id";
+    private static final String SELECT_TAG_BY_ID = "SELECT id, name FROM tag WHERE id = :id";
     private static final String DELETE_TAG_BY_ID = "DELETE FROM tag WHERE id = :id";
     private static final String INSERT_CERTIFICATE_TAG = "INSERT INTO certificate_tag " +
             "(certificate_id, tag_id) VALUES (:certificateId, :tagId)";
-    private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT * FROM  certificate_tag " +
+    private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT certificate_id, tag_id FROM  certificate_tag " +
             "WHERE certificate_id = :certificateId";
 
     @Autowired
