@@ -8,10 +8,9 @@ import com.epam.esm.repository.TagRepository;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -62,7 +61,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private void addNewTags(GiftCertificate certificate) {
         List<Tag> tags = certificate.getTags();
-        if (!Objects.isNull(tags) && !tags.isEmpty()) {
+        if (!CollectionUtils.isEmpty(tags)) {
             List<Tag> newTags = tags.stream()
                     .filter(tag -> tagRepository.read(tag.getId()) == null).collect(Collectors.toList());
 

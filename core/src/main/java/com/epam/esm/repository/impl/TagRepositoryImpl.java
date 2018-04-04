@@ -4,33 +4,33 @@ import com.epam.esm.domain.Tag;
 import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
+import java.util.Collections;
 import java.util.List;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {
-    private static final String INSERT_TAG = "INSERT INTO tag (name) VALUES (?)";
-    private static final String SELECT_BY_ID = "SELECT * FROM tag WHERE id = ?";
-    private static final String DELETE_BY_ID = "DELETE FROM tag WHERE id = ?";
+    private static final String INSERT_TAG = "INSERT INTO tag (name) VALUES (:name)";
+    private static final String SELECT_TAG_BY_ID = "SELECT * FROM tag WHERE id = :id";
+    private static final String DELETE_TAG_BY_ID = "DELETE FROM tag WHERE id = :id";
     private static final String INSERT_CERTIFICATE_TAG = "INSERT INTO certificate_tag " +
-            "(certificate_id, tag_id) VALUES (?, ?)";
-    private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT * FROM  certificate_tag WHERE certificate_id = ?";
+            "(certificate_id, tag_id) VALUES (:certificateId, :tagId)";
+    private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT * FROM  certificate_tag " +
+            "WHERE certificate_id = :certificateId";
 
     @Autowired
-    private JdbcOperations jdbcOperations;
+    private NamedParameterJdbcOperations namedParameterJdbcOperations;
 
     @Override
     public Tag create(Tag tag) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcOperations.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(INSERT_TAG, new String[]{"id"});
-            stmt.setString(1, tag.getName());
-            return stmt;
-        }, keyHolder);
+        namedParameterJdbcOperations
+                .update(INSERT_TAG, new BeanPropertySqlParameterSource(tag), keyHolder, new String[]{"id"});
         tag.setId(keyHolder.getKey().longValue());
         return tag;
     }
@@ -38,12 +38,13 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public Tag read(long id) {
         try {
-            return jdbcOperations.queryForObject(SELECT_BY_ID, (resultSet, i) -> {
+            return namedParameterJdbcOperations
+                    .queryForObject(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id), (resultSet, i) -> {
                 Tag tag = new Tag();
                 tag.setName(resultSet.getString("name"));
                 tag.setId(resultSet.getLong("id"));
                 return tag;
-            }, id);
+            });
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -51,21 +52,23 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public void delete(long id) {
-        jdbcOperations.update(DELETE_BY_ID, id);
+        namedParameterJdbcOperations.update(DELETE_TAG_BY_ID, new MapSqlParameterSource("id", id));
     }
 
     @Override
     public void createCertificateTag(long certificateId, long tagId) {
-        jdbcOperations.update(INSERT_CERTIFICATE_TAG, certificateId, tagId);
+        namedParameterJdbcOperations.update(INSERT_CERTIFICATE_TAG,
+                new MapSqlParameterSource("certificateId", certificateId).addValue("tagId", tagId));
     }
 
     @Override
     public List<Long> getCertificateTagsId(long certificateId) {
         try {
-            return jdbcOperations.query(GET_TAGS_IDS_BY_CERTIFICATE_ID,
-                    (resultSet, i) -> resultSet.getLong("tag_id"), certificateId);
+            return namedParameterJdbcOperations.query(GET_TAGS_IDS_BY_CERTIFICATE_ID,
+                    new MapSqlParameterSource("certificateId", certificateId),
+                    (resultSet, i) -> resultSet.getLong("tag_id"));
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            return Collections.emptyList();
         }
     }
 }

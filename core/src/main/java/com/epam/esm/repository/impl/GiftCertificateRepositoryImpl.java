@@ -4,60 +4,53 @@ import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.repository.GiftCertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public class GiftCertificateRepositoryImpl implements GiftCertificateRepository {
     private static final String INSERT_CERTIFICATE = "INSERT INTO certificate " +
             "(name, description, price, creation_date, modification_date, duration_days) " +
-            "VALUES (?, ?, ?, ?, ?, ?)";
-    private static final String UPDATE_BY_ID = "UPDATE certificate SET name = ?, description = ?, price = ?, " +
-            "creation_date = ?, modification_date = ?, duration_days = ? WHERE id = ?";
-    private static final String SELECT_BY_ID = "SELECT * FROM certificate WHERE id = ?";
-    private static final String DELETE_BY_ID = "DELETE FROM certificate WHERE id = ?";
+            "VALUES (:name, :description, :price, :creationDate, :lastModificationDate, :durationInDays)";
+    private static final String UPDATE_BY_ID = "UPDATE certificate SET name = :name, description = :description, price = :price, " +
+            "creation_date = :creationDate, modification_date = :lastModificationDate, duration_days = :durationInDays WHERE id = :id";
+    private static final String SELECT_BY_ID = "SELECT * FROM certificate WHERE id = :id";
+    private static final String DELETE_BY_ID = "DELETE FROM certificate WHERE id = :id";
 
     @Autowired
-    private JdbcOperations jdbcOperations;
+    private NamedParameterJdbcOperations namedParameterJdbcOperations;
 
     @Override
     public void update(GiftCertificate certificate) {
-        jdbcOperations.update(UPDATE_BY_ID, certificate.getName(), certificate.getDescription(),
-                certificate.getPrice(), certificate.getCreationDate(), certificate.getLastModificationDate(),
-                certificate.getDurationInDays(), certificate.getId());
+        SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(certificate);
+        namedParameterJdbcOperations.update(UPDATE_BY_ID, parameterSource);
     }
 
     @Override
     public List<GiftCertificate> search(Optional<Long> tag, Optional<String> name, Optional<String> description,
                                         Optional<String> sortBy) {
-        List<Object> params = constructSearchQuery(tag, name, description, sortBy);
+        Map<String, Object> params = constructSearchQuery(tag, name, description, sortBy);
 
-        return jdbcOperations.query((String) params.remove(params.size() - 1), params.toArray(), (rs, rowNum) -> mapRow(rs));
+        return namedParameterJdbcOperations.query((String) params.remove("query"), params, (rs, rowNum) -> mapRow(rs));
     }
 
     @Override
     public GiftCertificate create(GiftCertificate certificate) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcOperations.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(INSERT_CERTIFICATE, new String[]{"id"});
-            stmt.setString(1, certificate.getName());
-            stmt.setString(2, certificate.getDescription());
-            stmt.setBigDecimal(3, certificate.getPrice());
-            stmt.setDate(4, Date.valueOf(certificate.getCreationDate()));
-            stmt.setDate(5, Date.valueOf(certificate.getLastModificationDate()));
-            stmt.setLong(6, certificate.getDurationInDays());
-            return stmt;
-        }, keyHolder);
+        SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(certificate);
+        namedParameterJdbcOperations.update(INSERT_CERTIFICATE, parameterSource, keyHolder, new String[]{"id"});
         certificate.setId(keyHolder.getKey().longValue());
         return certificate;
     }
@@ -65,7 +58,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public GiftCertificate read(long id) {
         try {
-            return jdbcOperations.queryForObject(SELECT_BY_ID, (rs, rowNum) -> mapRow(rs), id);
+            return namedParameterJdbcOperations.queryForObject(SELECT_BY_ID,
+                    new MapSqlParameterSource("id", id), (rs, rowNum) -> mapRow(rs));
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -73,7 +67,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
     @Override
     public void delete(long id) {
-        jdbcOperations.update(DELETE_BY_ID, id);
+        namedParameterJdbcOperations.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
     }
 
     private GiftCertificate mapRow(ResultSet rs) throws SQLException {
@@ -88,15 +82,15 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 .build();
     }
 
-    private List<Object> constructSearchQuery(Optional<Long> tag, Optional<String> name, Optional<String> description,
+    private Map constructSearchQuery(Optional<Long> tag, Optional<String> name, Optional<String> description,
                                               Optional<String> sortBy) {
         StringBuilder query = new StringBuilder("SELECT * FROM certificate WHERE ");
-        String likeQuery = "id IN (SELECT * FROM searchlikeid(?, ?))";
-        List<Object> queryAndParams = new LinkedList<>();
+        String likeQuery = "id IN (SELECT * FROM searchlikeid(:column, :like))";
+        Map<String, Object> namedParameters = new HashMap<>();
 
         if (tag.isPresent()) {
-            query.append("id IN (SELECT certificate_id FROM certificate_tag WHERE tag_id = ?)");
-            queryAndParams.add(tag.get());
+            query.append("id IN (SELECT certificate_id FROM certificate_tag WHERE tag_id = :tagId)");
+            namedParameters.put("tagId", tag.get());
             if (name.isPresent() || description.isPresent()) {
                 query.append(" AND ");
             }
@@ -104,12 +98,12 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
 
         if (name.isPresent()) {
             query.append(likeQuery);
-            queryAndParams.add("name");
-            queryAndParams.add(name.get());
+            namedParameters.put("column", "name");
+            namedParameters.put("like", name.get());
         } else if (description.isPresent()) {
             query.append(likeQuery);
-            queryAndParams.add("description");
-            queryAndParams.add(description.get());
+            namedParameters.put("column", "description");
+            namedParameters.put("like", description.get());
         }
 
         if (!tag.isPresent() && !name.isPresent() && !description.isPresent()) {
@@ -124,7 +118,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 query.append(String.format(" ORDER BY %s", sortBy.get()));
             }
         }
-        queryAndParams.add(query.append(";").toString());
-        return queryAndParams;
+        namedParameters.put("query", query.append(";").toString());
+        return namedParameters;
     }
 }
