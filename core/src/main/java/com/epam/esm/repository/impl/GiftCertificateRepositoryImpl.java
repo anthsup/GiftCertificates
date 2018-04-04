@@ -53,8 +53,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     @Override
     public GiftCertificate create(GiftCertificate certificate) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(certificate);
-        namedParameterJdbcOperations.update(INSERT_CERTIFICATE, parameterSource, keyHolder, new String[]{"id"});
+        namedParameterJdbcOperations
+                .update(INSERT_CERTIFICATE, new BeanPropertySqlParameterSource(certificate), keyHolder, new String[]{"id"});
         certificate.setId(keyHolder.getKey().longValue());
         return certificate;
     }

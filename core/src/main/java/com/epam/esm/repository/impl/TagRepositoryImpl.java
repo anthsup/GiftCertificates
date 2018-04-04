@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +21,9 @@ public class TagRepositoryImpl implements TagRepository {
     private static final String DELETE_TAG_BY_ID = "DELETE FROM tag WHERE id = :id";
     private static final String INSERT_CERTIFICATE_TAG = "INSERT INTO certificate_tag " +
             "(certificate_id, tag_id) VALUES (:certificateId, :tagId)";
-    private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT certificate_id, tag_id FROM  certificate_tag " +
+    private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT certificate_id, tag_id FROM certificate_tag " +
             "WHERE certificate_id = :certificateId";
+    private static final String GET_TAGS_BY_IDS = "SELECT id, name FROM tag WHERE id IN (:ids)";
 
     @Autowired
     private NamedParameterJdbcOperations namedParameterJdbcOperations;
@@ -62,13 +64,15 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public List<Long> getCertificateTagsId(long certificateId) {
-        try {
-            return namedParameterJdbcOperations.query(GET_TAGS_IDS_BY_CERTIFICATE_ID,
-                    new MapSqlParameterSource("certificateId", certificateId),
-                    (resultSet, i) -> resultSet.getLong("tag_id"));
-        } catch (EmptyResultDataAccessException e) {
+    public List<Tag> getCertificateTags(long certificateId) {
+        List<Long> certificateTagIds = namedParameterJdbcOperations.query(GET_TAGS_IDS_BY_CERTIFICATE_ID,
+                new MapSqlParameterSource("certificateId", certificateId),
+                (resultSet, i) -> resultSet.getLong("tag_id"));
+
+        if (CollectionUtils.isEmpty(certificateTagIds)) {
             return Collections.emptyList();
         }
+        return namedParameterJdbcOperations
+                .queryForList(GET_TAGS_BY_IDS, new MapSqlParameterSource("ids", certificateTagIds), Tag.class);
     }
 }

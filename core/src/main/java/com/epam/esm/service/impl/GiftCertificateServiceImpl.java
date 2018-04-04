@@ -46,9 +46,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificate get(long id) {
             GiftCertificate certificate = certificateRepository.read(id);
-            if (certificate != null && !tagRepository.getCertificateTagsId(certificate.getId()).isEmpty()) {
-                List<Tag> certificateTags = tagRepository.getCertificateTagsId(certificate.getId())
-                        .stream().map(tagId -> tagRepository.read(tagId)).collect(Collectors.toList());
+            if (certificate != null) {
+                List<Tag> certificateTags = tagRepository.getCertificateTags(certificate.getId());
                 certificate.setTags(certificateTags);
             }
             return certificate;
