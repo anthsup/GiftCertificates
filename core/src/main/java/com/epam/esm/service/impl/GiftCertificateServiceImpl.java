@@ -33,11 +33,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public List<GiftCertificate> search(Optional<Long> tag, Optional<String> name, Optional<String> description,
                                         Optional<String> sortBy) {
-        List<GiftCertificate> giftCertificates =  certificateRepository.search(tag, name, description, sortBy);
+        List<GiftCertificate> giftCertificates = certificateRepository.search(tag, name, description, sortBy);
         giftCertificates.forEach(this::setTags);
         return giftCertificates;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Method also adds new tags if they were found in provided entity
+     */
     @Override
     public GiftCertificate add(GiftCertificate certificate) {
         if (certificate == null) {
@@ -47,13 +52,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return certificateRepository.create(certificate);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Method also sets certificates' tags if they're found
+     */
     @Override
     public GiftCertificate get(long id) {
-            GiftCertificate certificate = certificateRepository.read(id);
-            if (certificate != null) {
-                setTags(certificate);
-            }
-            return certificate;
+        GiftCertificate certificate = certificateRepository.read(id);
+        if (certificate != null) {
+            setTags(certificate);
+        }
+        return certificate;
     }
 
     @Override

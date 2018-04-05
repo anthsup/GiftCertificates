@@ -3,12 +3,10 @@ package com.epam.esm.domain;
 public class Tag extends BaseDomain {
     private String name;
 
-    public Tag() {
-    }
+    public Tag() {}
 
-    public Tag(long id, String name) {
+    public Tag(String name) {
         this.name = name;
-        setId(id);
     }
 
     public String getName() {

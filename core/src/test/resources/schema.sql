@@ -2,28 +2,28 @@ SET DATABASE SQL SYNTAX PGS TRUE;
 
 CREATE TABLE certificate
 (
-  id serial NOT NULL,
-  name character varying(120) NOT NULL,
-  description text,
-  price numeric(10,2),
-  creation_date date NOT NULL,
-  modification_date date,
-  duration_days integer,
+  id                SERIAL                 NOT NULL,
+  name              CHARACTER VARYING(120) NOT NULL,
+  description       TEXT,
+  price             NUMERIC(10, 2)         NOT NULL,
+  creation_date     DATE,
+  modification_date DATE,
+  duration_days     INTEGER,
   CONSTRAINT gift_certificate_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE tag
 (
-  id serial NOT NULL,
-  name character varying(50) NOT NULL,
+  id   SERIAL                NOT NULL,
+  name CHARACTER VARYING(50) NOT NULL,
   CONSTRAINT tag_pkey PRIMARY KEY (id),
   CONSTRAINT tag_name_key UNIQUE (name)
 );
 
 CREATE TABLE certificate_tag
 (
-  certificate_id integer NOT NULL,
-  tag_id integer NOT NULL,
+  certificate_id INTEGER NOT NULL,
+  tag_id         INTEGER NOT NULL,
   CONSTRAINT id PRIMARY KEY (certificate_id, tag_id),
   CONSTRAINT certificate_tag_certificate_id_fkey FOREIGN KEY (certificate_id)
   REFERENCES certificate (id) MATCH SIMPLE

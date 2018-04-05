@@ -5,7 +5,9 @@ import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.namedparam.*;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -73,8 +75,6 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public void createNewTags(long certificateId, List<Tag> newTags) {
-        SqlParameterSource[] parameterSources = SqlParameterSourceUtils.createBatch(newTags.toArray());
-        namedParameterJdbcOperations.batchUpdate(INSERT_TAG, parameterSources);
-        newTags.forEach(tag -> createCertificateTag(certificateId, tag.getId()));
+        newTags.stream().map(this::create).forEach(tag -> createCertificateTag(certificateId, tag.getId()));
     }
 }

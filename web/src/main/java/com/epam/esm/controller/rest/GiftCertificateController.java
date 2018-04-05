@@ -2,7 +2,6 @@ package com.epam.esm.controller.rest;
 
 import com.epam.esm.controller.rest.util.RestPreConditions;
 import com.epam.esm.domain.GiftCertificate;
-import com.epam.esm.exception.ValidationException;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +23,7 @@ public class GiftCertificateController {
     /**
      * Method to save Gift Certificates in the system
      *
-     * @param certificate
-     *            gift certificate entity to save
+     * @param certificate gift certificate entity to save
      * @return Response entity with CREATED http status code and location of the new resource
      */
     @RequestMapping(method = RequestMethod.POST)
@@ -41,8 +39,7 @@ public class GiftCertificateController {
     /**
      * Method to find gift certificates by id
      *
-     * @param certificateId
-     *            id of gift certificate to find
+     * @param certificateId id of gift certificate to find
      * @return found gift certificate or null if nothing found
      */
     @RequestMapping(value = "/{certificateId}", method = RequestMethod.GET)
@@ -55,10 +52,8 @@ public class GiftCertificateController {
      * Method to edit Gift Certificates. certificateId param and id of Gift Certificate entity
      * should be the same
      *
-     * @param certificateId
-     *            id of Gift Certificate to edit
-     * @param certificate
-     *            Certificate entity to be updated
+     * @param certificateId id of Gift Certificate to edit
+     * @param certificate   Certificate entity to be updated
      * @return Response entity with OK http status code and location of a new resource
      */
     @RequestMapping(value = "/{certificateId}", method = RequestMethod.PUT)
@@ -66,10 +61,9 @@ public class GiftCertificateController {
     public ResponseEntity<Void> update(@PathVariable long certificateId, @RequestBody GiftCertificate certificate,
                                        UriComponentsBuilder ucb) {
         RestPreConditions.checkNotNull(certificate);
-        if (certificateId != certificate.getId()) {
-            throw new ValidationException("Path and request body id should match.");
-        }
+        RestPreConditions.updatedEntityIdValid(certificateId, certificate);
         RestPreConditions.checkFound(certificateService.get(certificateId));
+
         URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificateId)).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(locationUri);
@@ -80,8 +74,7 @@ public class GiftCertificateController {
     /**
      * Method to delete Gift Certificates from the system
      *
-     * @param certificateId
-     *            id of Gift Certificate to delete
+     * @param certificateId id of Gift Certificate to delete
      */
     @RequestMapping(value = "/{certificateId}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -92,14 +85,10 @@ public class GiftCertificateController {
     /**
      * Method which allows to find gift certificates in the system
      *
-     * @param description
-     *          search by part of certificate's description
-     * @param name
-     *          search by part of certificate's name
-     * @param tagId
-     *          provide tagId which certificate contains
-     * @param sortBy
-     *          provide column to sort by — either name or creation_date
+     * @param description search by part of certificate's description
+     * @param name        search by part of certificate's name
+     * @param tagId       provide tagId which certificate contains
+     * @param sortBy      provide column to sort by — either name or creation_date
      * @return List of Gift Certificates
      */
     @RequestMapping(value = "/search", method = RequestMethod.GET)

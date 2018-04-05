@@ -21,8 +21,7 @@ public class TagController {
     /**
      * Method to save Tag in the system
      *
-     * @param tag
-     *            tag entity to save
+     * @param tag tag entity to save
      * @return Response entity with CREATED http status code and location of the new resource
      */
     @RequestMapping(method = RequestMethod.POST)
@@ -38,8 +37,7 @@ public class TagController {
     /**
      * Method to find Tag by id
      *
-     * @param tagId
-     *            id of a tag to find
+     * @param tagId id of a tag to find
      * @return found Tag or null if nothing found
      */
     @RequestMapping(value = "/{tagId}", method = RequestMethod.GET)
@@ -51,8 +49,7 @@ public class TagController {
     /**
      * Method to delete Tag from the system
      *
-     * @param tagId
-     *            id of Tag to delete
+     * @param tagId id of Tag to delete
      */
     @RequestMapping(value = "/{tagId}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)

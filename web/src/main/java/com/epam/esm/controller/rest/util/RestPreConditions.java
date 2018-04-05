@@ -1,10 +1,13 @@
 package com.epam.esm.controller.rest.util;
 
+import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.exception.EmptyRequestBodyException;
 import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.exception.ValidationException;
 
 public class RestPreConditions {
-    private RestPreConditions() {}
+    private RestPreConditions() {
+    }
 
     public static <T> T checkFound(T resource) {
         if (resource == null) {
@@ -13,11 +16,15 @@ public class RestPreConditions {
         return resource;
     }
 
-    public static <T> T checkNotNull(T value) {
+    public static <T> void checkNotNull(T value) {
         if (null == value) {
             throw new EmptyRequestBodyException("Request body is empty!");
-        } else {
-            return value;
+        }
+    }
+
+    public static void updatedEntityIdValid(long certificateId, GiftCertificate certificate) {
+        if (certificateId != certificate.getId()) {
+            throw new ValidationException("Path and request body id should match.");
         }
     }
 }

@@ -10,6 +10,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -23,13 +26,13 @@ public class TagRepositoryImplTest {
 
     @Before
     public void setUp() {
-        tag = new Tag(42L, "tag");
+        tag = new Tag("tag");
     }
 
     @Test
     public void create() {
         Tag actualTag = tagRepository.create(tag);
-        assertEquals(tag.getId(), actualTag.getId());
+        assertTrue(actualTag.getId() != 0);
     }
 
     @Test
@@ -41,5 +44,32 @@ public class TagRepositoryImplTest {
     public void delete() {
         tagRepository.delete(1L);
         assertNull(tagRepository.read(1L));
+    }
+
+    @Test
+    public void createCertificateTag() {
+        long certificateId = 3L;
+        long tagId = 2L;
+        tagRepository.createCertificateTag(certificateId, tagId);
+        assertTrue(tagRepository.getCertificateTags(certificateId)
+                .stream().anyMatch(tag1 -> tag1.getId() == tagId));
+    }
+
+    @Test
+    public void getCertificateTags() {
+        assertTrue(tagRepository.getCertificateTags(3L)
+                .stream().anyMatch(tag1 -> tag1.getName().equals("gift")));
+    }
+
+    @Test
+    public void createNewTags() {
+        List<Tag> newTags = new ArrayList<>();
+        newTags.add(new Tag("newtag"));
+        newTags.add(new Tag("even newer tag"));
+        tagRepository.createNewTags(2L, newTags);
+        assertTrue(tagRepository.getCertificateTags(2L)
+                .stream().anyMatch(tag1 -> tag1.getName().equals("newtag")));
+        assertTrue(tagRepository.getCertificateTags(2L)
+                .stream().anyMatch(tag1 -> tag1.getName().equals("even newer tag")));
     }
 }

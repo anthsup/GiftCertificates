@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,8 +33,6 @@ public class GiftCertificateRepositoryImplTest {
 
     @Before
     public void setUp() {
-        certificate = new GiftCertificate.Builder().name("certificate").id(42L)
-                .price(BigDecimal.TEN).build();
         tag = Optional.of(1L);
         name = Optional.empty();
         description = Optional.empty();
@@ -49,9 +48,16 @@ public class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    public void create() {
+    public void createReturnsEntityWithIdWhenGivenValidEntity() {
+        certificate = new GiftCertificate.Builder().name("certificate").price(BigDecimal.TEN).build();
         GiftCertificate actualCertificate = certificateRepository.create(certificate);
-        assertEquals(certificate.getId(), actualCertificate.getId());
+        assertTrue(actualCertificate.getId() != 0);
+    }
+
+    @Test(expected = DataAccessException.class)
+    public void createThrowsExceptionWhenGivenInvalidEntity() {
+        certificate = new GiftCertificate.Builder().name("certificate").build();
+        certificateRepository.create(certificate);
     }
 
     @Test
