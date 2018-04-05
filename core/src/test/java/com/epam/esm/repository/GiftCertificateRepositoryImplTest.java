@@ -11,7 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
-import java.util.LinkedList;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,13 +37,13 @@ public class GiftCertificateRepositoryImplTest {
         tag = Optional.of(1L);
         name = Optional.empty();
         description = Optional.empty();
-        sortBy = Optional.of("name");
+        sortBy = Optional.of("creation_date");
     }
 
     @Test
     public void update() {
         GiftCertificate updatedCertificate = new GiftCertificate.Builder()
-                .id(3L).name("updated").price(BigDecimal.ONE).build();
+                .id(2L).name("updated").price(BigDecimal.ONE).build();
         certificateRepository.update(updatedCertificate);
         assertEquals("updated", certificateRepository.read(updatedCertificate.getId()).getName());
     }
@@ -71,9 +71,9 @@ public class GiftCertificateRepositoryImplTest {
     }
 
     @Test
-    public void searchFindsValidCertificates() {
+    public void searchSortsCertificates() {
         List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
-        assertFalse(found.isEmpty());
+        assertEquals(LocalDate.of(2018, 3, 30), found.get(0).getCreationDate());
     }
 
     @Test

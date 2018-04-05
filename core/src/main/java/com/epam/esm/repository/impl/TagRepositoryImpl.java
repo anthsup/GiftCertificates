@@ -4,9 +4,8 @@ import com.epam.esm.domain.Tag;
 import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -41,12 +40,8 @@ public class TagRepositoryImpl implements TagRepository {
     public Tag read(long id) {
         try {
             return namedParameterJdbcOperations
-                    .queryForObject(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id), (resultSet, i) -> {
-                Tag tag = new Tag();
-                tag.setName(resultSet.getString("name"));
-                tag.setId(resultSet.getLong("id"));
-                return tag;
-            });
+                    .queryForObject(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id),
+                            BeanPropertyRowMapper.newInstance(Tag.class));
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -73,6 +68,13 @@ public class TagRepositoryImpl implements TagRepository {
             return Collections.emptyList();
         }
         return namedParameterJdbcOperations
-                .queryForList(GET_TAGS_BY_IDS, new MapSqlParameterSource("ids", certificateTagIds), Tag.class);
+                .query(GET_TAGS_BY_IDS, new MapSqlParameterSource("ids", certificateTagIds), BeanPropertyRowMapper.newInstance(Tag.class));
+    }
+
+    @Override
+    public void createNewTags(long certificateId, List<Tag> newTags) {
+        SqlParameterSource[] parameterSources = SqlParameterSourceUtils.createBatch(newTags.toArray());
+        namedParameterJdbcOperations.batchUpdate(INSERT_TAG, parameterSources);
+        newTags.forEach(tag -> createCertificateTag(certificateId, tag.getId()));
     }
 }

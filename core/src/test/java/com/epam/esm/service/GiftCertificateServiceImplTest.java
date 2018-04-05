@@ -14,7 +14,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +69,7 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     public void getReturnsGiftCertificateWhenGivenValidId() {
-        when(tagRepository.getCertificateTagsId(certificate.getId())).thenReturn(Collections.emptyList());
+        when(tagRepository.getCertificateTags(certificate.getId())).thenReturn(Collections.emptyList());
         when(certificateRepository.read(certificate.getId())).thenReturn(certificate);
         GiftCertificate actualCertificate = certificateService.get(certificate.getId());
 
