@@ -26,7 +26,7 @@ public class GiftCertificateController {
      * @param certificate gift certificate entity to save
      * @return Response entity with CREATED http status code and location of the new resource
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<GiftCertificate> create(@RequestBody GiftCertificate certificate, UriComponentsBuilder ucb) {
         RestPreConditions.checkNotNull(certificate);
@@ -91,7 +91,7 @@ public class GiftCertificateController {
      * @param sortBy      provide column to sort by — either name or creation_date
      * @return List of Gift Certificates
      */
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<GiftCertificate> search(@RequestParam Optional<Long> tagId, @RequestParam Optional<String> name,
                                         @RequestParam Optional<String> description,

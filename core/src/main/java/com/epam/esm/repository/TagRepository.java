@@ -35,4 +35,11 @@ public interface TagRepository extends CrdRepository<Tag> {
      * @param newTags       list of tags which are being created
      */
     void createNewTags(long certificateId, List<Tag> newTags);
+
+    /**
+     * Method that returns all tags from a database
+     *
+     * @return all the tags from a database or empty collection if nothing found
+     */
+    List<Tag> getAll();
 }

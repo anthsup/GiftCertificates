@@ -3,6 +3,7 @@ package com.epam.esm.repository.impl;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
@@ -25,6 +26,7 @@ public class TagRepositoryImpl implements TagRepository {
     private static final String GET_TAGS_IDS_BY_CERTIFICATE_ID = "SELECT certificate_id, tag_id FROM certificate_tag " +
             "WHERE certificate_id = :certificateId";
     private static final String GET_TAGS_BY_IDS = "SELECT id, name FROM tag WHERE id IN (:ids)";
+    private static final String SELECT_ALL = "SELECT id, name FROM tag";
 
     @Autowired
     private NamedParameterJdbcOperations namedParameterJdbcOperations;
@@ -35,6 +37,7 @@ public class TagRepositoryImpl implements TagRepository {
         namedParameterJdbcOperations
                 .update(INSERT_TAG, new BeanPropertySqlParameterSource(tag), keyHolder, new String[]{"id"});
         tag.setId(keyHolder.getKey().longValue());
+
         return tag;
     }
 
@@ -76,5 +79,14 @@ public class TagRepositoryImpl implements TagRepository {
     @Override
     public void createNewTags(long certificateId, List<Tag> newTags) {
         newTags.stream().map(this::create).forEach(tag -> createCertificateTag(certificateId, tag.getId()));
+    }
+
+    @Override
+    public List<Tag> getAll() {
+        try {
+            return namedParameterJdbcOperations.query(SELECT_ALL, BeanPropertyRowMapper.newInstance(Tag.class));
+        } catch (DataAccessException e) {
+            return Collections.emptyList();
+        }
     }
 }

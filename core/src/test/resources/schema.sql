@@ -34,3 +34,21 @@ CREATE TABLE certificate_tag
   ON UPDATE CASCADE
   ON DELETE CASCADE
 );
+
+CREATE FUNCTION searchLike(col TEXT, q TEXT)
+  RETURNS TABLE(id INT)
+  READS SQL DATA
+RETURN TABLE(
+  SELECT id
+    FROM
+  certificate
+    WHERE
+  CASE col
+    WHEN 'name'
+      THEN name
+    WHEN 'description'
+      THEN description
+    ELSE NULL
+  END CASE
+  LIKE '%' || q || '%'
+);

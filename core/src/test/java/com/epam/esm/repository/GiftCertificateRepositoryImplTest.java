@@ -33,7 +33,7 @@ public class GiftCertificateRepositoryImplTest {
 
     @Before
     public void setUp() {
-        tag = Optional.of(1L);
+        tag = Optional.empty();
         name = Optional.empty();
         description = Optional.empty();
         sortBy = Optional.of("creation_date");
@@ -80,6 +80,20 @@ public class GiftCertificateRepositoryImplTest {
     public void searchSortsCertificates() {
         List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
         assertEquals(LocalDate.of(2018, 3, 30), found.get(0).getCreationDate());
+    }
+
+    @Test
+    public void searchFindsByNamePart() {
+        name = Optional.of("2");
+        List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
+        assertTrue(found.stream().anyMatch(cert -> cert.getName().endsWith("2")));
+    }
+
+    @Test
+    public void searchFindsByDescriptionPart() {
+        description = Optional.of("cool");
+        List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
+        assertTrue(found.stream().anyMatch(cert -> cert.getDescription().contains("cool")));
     }
 
     @Test

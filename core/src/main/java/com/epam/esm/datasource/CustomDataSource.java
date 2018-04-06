@@ -2,6 +2,8 @@ package com.epam.esm.datasource;
 
 import com.epam.esm.exception.ClosingConnectionException;
 import com.epam.esm.exception.CustomDataSourceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.AbstractDataSource;
 import org.springframework.jdbc.datasource.SmartDataSource;
@@ -14,11 +16,12 @@ import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class CustomDataSource extends AbstractDataSource implements SmartDataSource {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomDataSource.class);
+
     @Value("${pool.capacity}")
     private int poolCapacity;
 
@@ -38,7 +41,7 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     private String dbPassword;
 
     private BlockingQueue<Connection> pool;
-    private AtomicInteger connectionCount;
+    private int connectionCount;
     private Lock lock;
 
     private CustomDataSource() {
@@ -48,7 +51,6 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     private void init() {
         try {
             pool = new ArrayBlockingQueue<>(poolCapacity);
-            connectionCount = new AtomicInteger();
             lock = new ReentrantLock();
             Class.forName(driverClassName);
         } catch (ClassNotFoundException e) {
@@ -66,11 +68,11 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
         try {
             connection = pool.poll(timeoutSeconds, TimeUnit.SECONDS);
             lock.lock();
-            if (connection == null && connectionCount.get() < poolCapacity) {
+            if (connection == null && connectionCount < poolCapacity) {
                 connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
                 pool.offer(connection);
+                connectionCount++;
             }
-            connectionCount.incrementAndGet();
             if (connection == null) {
                 throw new CustomDataSourceException("Too many connections.");
             }
@@ -114,14 +116,14 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
             try {
                 connection.close();
             } catch (SQLException e) {
-                throw new ClosingConnectionException(e);
+                LOGGER.error("Couldn't close connection", e);
             }
         }
     }
 
     private static class CustomDataSourceHolder {
-        private CustomDataSourceHolder() {}
-
         private static final CustomDataSource INSTANCE = new CustomDataSource();
+
+        private CustomDataSourceHolder() {}
     }
 }

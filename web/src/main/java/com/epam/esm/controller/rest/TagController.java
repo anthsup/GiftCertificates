@@ -24,7 +24,7 @@ public class TagController {
      * @param tag tag entity to save
      * @return Response entity with CREATED http status code and location of the new resource
      */
-    @RequestMapping(method = RequestMethod.POST)
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Tag> create(@RequestBody Tag tag, UriComponentsBuilder ucb) {
         RestPreConditions.checkNotNull(tag);
