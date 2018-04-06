@@ -14,7 +14,10 @@ public class GiftCertificate extends BaseDomain {
     private long durationInDays;
     private List<Tag> tags;
 
-    public GiftCertificate() {}
+    public GiftCertificate() {
+        creationDate = LocalDate.now();
+        lastModificationDate = LocalDate.now();
+    }
 
     private GiftCertificate(Builder builder) {
         this.setId(builder.id);

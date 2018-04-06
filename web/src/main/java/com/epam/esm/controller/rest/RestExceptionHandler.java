@@ -6,7 +6,9 @@ import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -29,6 +31,22 @@ public class RestExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorInfo invalidParametersError(Exception e) {
         return new ErrorInfo(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorInfo malformedJson(HttpMessageNotReadableException e) {
+        LOGGER.trace(e.getMessage(), e);
+        return new ErrorInfo(HttpStatus.BAD_REQUEST.value(),
+                "Your JSON is malformed, please check it and try again.");
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorInfo dataIntegrityViolation(DataIntegrityViolationException e) {
+        LOGGER.trace(e.getMessage(), e);
+        return new ErrorInfo(HttpStatus.BAD_REQUEST.value(),
+                "Null values were provided where they shouldn't be");
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

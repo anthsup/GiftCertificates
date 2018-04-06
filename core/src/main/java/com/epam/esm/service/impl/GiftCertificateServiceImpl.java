@@ -48,8 +48,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (certificate == null) {
             throw new ValidationException("GiftCertificate you've provided is null!");
         }
+        certificate = certificateRepository.create(certificate);
         addNewTags(certificate);
-        return certificateRepository.create(certificate);
+
+        return certificate;
     }
 
     /**

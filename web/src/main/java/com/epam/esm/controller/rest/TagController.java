@@ -29,10 +29,11 @@ public class TagController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Tag> create(@RequestBody Tag tag, UriComponentsBuilder ucb) {
         RestValidator.checkNotNull(tag);
+        tag = RestValidator.checkFound(tagService.add(tag));
         URI locationUri = ucb.path("/api/tags/").path(String.valueOf(tag.getId())).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(locationUri);
-        return new ResponseEntity<>(RestValidator.checkFound(tagService.add(tag)), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(tag, headers, HttpStatus.CREATED);
     }
 
     /**

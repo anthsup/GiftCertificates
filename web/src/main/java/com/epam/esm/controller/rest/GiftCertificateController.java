@@ -30,10 +30,11 @@ public class GiftCertificateController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<GiftCertificate> create(@RequestBody GiftCertificate certificate, UriComponentsBuilder ucb) {
         RestValidator.checkNotNull(certificate);
+        certificate = RestValidator.checkFound(certificateService.add(certificate));
         URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificate.getId())).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(locationUri);
-        return new ResponseEntity<>(RestValidator.checkFound(certificateService.add(certificate)), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(certificate, headers, HttpStatus.CREATED);
     }
 
     /**
