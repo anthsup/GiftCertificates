@@ -89,7 +89,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     private Map<String, Object> constructSearchQuery(Optional<Long> tag, Optional<String> name, Optional<String> description,
                                                      Optional<String> sortBy) {
         StringBuilder query = new StringBuilder("SELECT * FROM certificate WHERE ");
-        String likeQuery = "id IN (SELECT * FROM TABLE(searchLike(:column, :like)))";
+        String likeQuery = "id IN (SELECT * FROM searchLike(:column, :like))";
         Map<String, Object> namedParameters = new HashMap<>();
 
         if (tag.isPresent()) {

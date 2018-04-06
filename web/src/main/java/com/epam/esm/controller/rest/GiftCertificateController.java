@@ -1,6 +1,6 @@
 package com.epam.esm.controller.rest;
 
-import com.epam.esm.controller.rest.util.RestPreConditions;
+import com.epam.esm.controller.rest.util.RestValidator;
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +29,11 @@ public class GiftCertificateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<GiftCertificate> create(@RequestBody GiftCertificate certificate, UriComponentsBuilder ucb) {
-        RestPreConditions.checkNotNull(certificate);
+        RestValidator.checkNotNull(certificate);
         URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificate.getId())).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(locationUri);
-        return new ResponseEntity<>(RestPreConditions.checkFound(certificateService.add(certificate)), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(RestValidator.checkFound(certificateService.add(certificate)), headers, HttpStatus.CREATED);
     }
 
     /**
@@ -42,10 +42,10 @@ public class GiftCertificateController {
      * @param certificateId id of gift certificate to find
      * @return found gift certificate or null if nothing found
      */
-    @RequestMapping(value = "/{certificateId}", method = RequestMethod.GET)
+    @GetMapping(value = "/{certificateId}")
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificate getById(@PathVariable long certificateId) {
-        return RestPreConditions.checkFound(certificateService.get(certificateId));
+        return RestValidator.checkFound(certificateService.get(certificateId));
     }
 
     /**
@@ -56,13 +56,13 @@ public class GiftCertificateController {
      * @param certificate   Certificate entity to be updated
      * @return Response entity with OK http status code and location of a new resource
      */
-    @RequestMapping(value = "/{certificateId}", method = RequestMethod.PUT)
+    @PutMapping(value = "/{certificateId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Void> update(@PathVariable long certificateId, @RequestBody GiftCertificate certificate,
                                        UriComponentsBuilder ucb) {
-        RestPreConditions.checkNotNull(certificate);
-        RestPreConditions.updatedEntityIdValid(certificateId, certificate);
-        RestPreConditions.checkFound(certificateService.get(certificateId));
+        RestValidator.checkNotNull(certificate);
+        RestValidator.updatedEntityIdValid(certificateId, certificate);
+        RestValidator.checkFound(certificateService.get(certificateId));
 
         URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificateId)).build().toUri();
         HttpHeaders headers = new HttpHeaders();
@@ -76,7 +76,7 @@ public class GiftCertificateController {
      *
      * @param certificateId id of Gift Certificate to delete
      */
-    @RequestMapping(value = "/{certificateId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/{certificateId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long certificateId) {
         certificateService.delete(certificateId);

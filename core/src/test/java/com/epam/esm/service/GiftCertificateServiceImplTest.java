@@ -94,7 +94,7 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     public void search() {
-        when(certificateRepository.search(tag, name, description, sortBy)).thenReturn(Collections.EMPTY_LIST);
+        when(certificateRepository.search(tag, name, description, sortBy)).thenReturn(Collections.emptyList());
         List<GiftCertificate> certificates = certificateService.search(tag, name, description, sortBy);
 
         verify(certificateRepository, times(1)).search(tag, name, description, sortBy);

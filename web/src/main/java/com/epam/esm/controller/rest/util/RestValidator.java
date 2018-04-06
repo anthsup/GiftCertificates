@@ -5,8 +5,8 @@ import com.epam.esm.exception.EmptyRequestBodyException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.exception.ValidationException;
 
-public class RestPreConditions {
-    private RestPreConditions() {
+public class RestValidator {
+    private RestValidator() {
     }
 
     public static <T> T checkFound(T resource) {

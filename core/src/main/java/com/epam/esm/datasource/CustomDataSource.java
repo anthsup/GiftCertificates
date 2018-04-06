@@ -102,12 +102,14 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
                 return true;
             }
         } catch (SQLException e) {
+            LOGGER.error("Error while closing connection", e);
             throw new ClosingConnectionException(e);
         }
     }
 
     @PreDestroy
     private void close() {
+        LOGGER.info("Destroying connection pool");
         pool.forEach(this::closeConnection);
     }
 
