@@ -17,7 +17,7 @@ public class TagServiceImpl implements TagService {
     private TagRepository tagRepository;
 
     @Override
-    public Tag add(Tag tag) {
+    public Tag create(Tag tag) {
         if (tag == null) {
             throw new ValidationException("Tag you've provided is null!");
         }
@@ -25,7 +25,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Tag get(long id) {
+    public Tag read(long id) {
         return tagRepository.read(id);
     }
 

@@ -34,7 +34,7 @@ public class TagServiceImplTest {
     @Test
     public void addReturnsTagWhenGivenValidArg() {
         when(tagRepository.create(tag)).thenReturn(tag);
-        Tag actualTag = tagService.add(tag);
+        Tag actualTag = tagService.create(tag);
 
         verify(tagRepository, times(1)).create(tag);
         assertEquals(tag, actualTag);
@@ -42,13 +42,13 @@ public class TagServiceImplTest {
 
     @Test(expected = ValidationException.class)
     public void addThrowsExceptionWhenGivenNull() {
-        tagService.add(null);
+        tagService.create(null);
     }
 
     @Test
     public void getReturnsTagWhenGivenValidId() {
         when(tagRepository.read(tag.getId())).thenReturn(tag);
-        Tag actualTag = tagService.get(tag.getId());
+        Tag actualTag = tagService.read(tag.getId());
 
         verify(tagRepository, times(1)).read(tag.getId());
         assertEquals(tag, actualTag);
@@ -57,7 +57,7 @@ public class TagServiceImplTest {
     @Test
     public void getReturnsNullWhenGivenInvalidId() {
         when(tagRepository.read(13)).thenReturn(null);
-        Tag actualTag = tagService.get(13);
+        Tag actualTag = tagService.read(13);
 
         verify(tagRepository, times(1)).read(13);
         assertNull(actualTag);

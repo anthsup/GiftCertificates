@@ -56,7 +56,7 @@ public class GiftCertificateServiceImplTest {
     @Test
     public void addReturnsGiftCertificateWhenGivenValidArg() {
         when(certificateRepository.create(certificate)).thenReturn(certificate);
-        GiftCertificate actualCertificate = certificateService.add(certificate);
+        GiftCertificate actualCertificate = certificateService.create(certificate);
 
         verify(certificateRepository, times(1)).create(certificate);
         assertEquals(certificate, actualCertificate);
@@ -64,14 +64,14 @@ public class GiftCertificateServiceImplTest {
 
     @Test(expected = ValidationException.class)
     public void addThrowsExceptionWhenGivenNull() {
-        certificateService.add(null);
+        certificateService.create(null);
     }
 
     @Test
     public void getReturnsGiftCertificateWhenGivenValidId() {
         when(tagRepository.getCertificateTags(certificate.getId())).thenReturn(Collections.emptyList());
         when(certificateRepository.read(certificate.getId())).thenReturn(certificate);
-        GiftCertificate actualCertificate = certificateService.get(certificate.getId());
+        GiftCertificate actualCertificate = certificateService.read(certificate.getId());
 
         verify(certificateRepository, times(1)).read(certificate.getId());
         assertEquals(certificate, actualCertificate);
@@ -80,7 +80,7 @@ public class GiftCertificateServiceImplTest {
     @Test
     public void getReturnsNullWhenGivenInvalidId() {
         when(certificateRepository.read(13)).thenReturn(null);
-        GiftCertificate actualCertificate = certificateService.get(13);
+        GiftCertificate actualCertificate = certificateService.read(13);
 
         verify(certificateRepository, times(1)).read(13);
         assertNull(actualCertificate);

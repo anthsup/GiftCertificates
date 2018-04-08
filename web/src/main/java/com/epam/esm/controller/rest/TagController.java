@@ -29,7 +29,7 @@ public class TagController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Tag> create(@RequestBody Tag tag, UriComponentsBuilder ucb) {
         RestValidator.checkNotNull(tag);
-        tag = RestValidator.checkFound(tagService.add(tag));
+        tag = RestValidator.checkFound(tagService.create(tag));
         URI locationUri = ucb.path("/api/tags/").path(String.valueOf(tag.getId())).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(locationUri);
@@ -45,7 +45,7 @@ public class TagController {
     @GetMapping(value = "/{tagId}")
     @ResponseStatus(HttpStatus.OK)
     public Tag get(@PathVariable long tagId) {
-        return RestValidator.checkFound(tagService.get(tagId));
+        return RestValidator.checkFound(tagService.read(tagId));
     }
 
     /**

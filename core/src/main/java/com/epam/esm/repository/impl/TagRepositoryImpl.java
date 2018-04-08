@@ -9,17 +9,20 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class TagRepositoryImpl implements TagRepository {
     private static final String INSERT_TAG = "INSERT INTO tag (name) VALUES (:name)";
     private static final String SELECT_TAG_BY_ID = "SELECT id, name FROM tag WHERE id = :id";
+    private static final String SELECT_TAG_BY_NAME = "SELECT id, name FROM tag WHERE name = :name";
     private static final String DELETE_TAG_BY_ID = "DELETE FROM tag WHERE id = :id";
     private static final String INSERT_CERTIFICATE_TAG = "INSERT INTO certificate_tag " +
             "(certificate_id, tag_id) VALUES (:certificateId, :tagId)";
@@ -27,6 +30,8 @@ public class TagRepositoryImpl implements TagRepository {
             "WHERE certificate_id = :certificateId";
     private static final String GET_TAGS_BY_IDS = "SELECT id, name FROM tag WHERE id IN (:ids)";
     private static final String SELECT_ALL = "SELECT id, name FROM tag";
+    private static final String DELETE_ALL_EXCEPT_PROVIDED = "DELETE from certificate_tag " +
+            "WHERE certificate_id = :certificateId AND tag_id NOT IN (:tagIds)";
 
     @Autowired
     private NamedParameterJdbcOperations namedParameterJdbcOperations;
@@ -43,13 +48,7 @@ public class TagRepositoryImpl implements TagRepository {
 
     @Override
     public Tag read(long id) {
-        try {
-            return namedParameterJdbcOperations
-                    .queryForObject(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id),
-                            BeanPropertyRowMapper.newInstance(Tag.class));
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+        return readBy(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id));
     }
 
     @Override
@@ -77,8 +76,18 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public void createNewTags(long certificateId, List<Tag> newTags) {
-        newTags.stream().map(this::create).forEach(tag -> createCertificateTag(certificateId, tag.getId()));
+    public void retainCertificateTags(long certificateId, List<Long> tagIds) {
+        SqlParameterSource parameterSource = new MapSqlParameterSource("certificateId", certificateId)
+                .addValue("tagIds", tagIds);
+        namedParameterJdbcOperations
+                .update(DELETE_ALL_EXCEPT_PROVIDED, parameterSource);
+    }
+
+    @Override
+    public List<Tag> createNewTags(long certificateId, List<Tag> newTags) {
+        List<Tag> createdTags = newTags.stream().map(this::create).collect(Collectors.toList());
+        createdTags.forEach(tag -> createCertificateTag(certificateId, tag.getId()));
+        return createdTags;
     }
 
     @Override
@@ -87,6 +96,21 @@ public class TagRepositoryImpl implements TagRepository {
             return namedParameterJdbcOperations.query(SELECT_ALL, BeanPropertyRowMapper.newInstance(Tag.class));
         } catch (DataAccessException e) {
             return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public Tag readByName(String tagName) {
+        return readBy(SELECT_TAG_BY_NAME, new MapSqlParameterSource("name", tagName));
+    }
+
+    private Tag readBy(String query, MapSqlParameterSource parameterSource) {
+        try {
+            return namedParameterJdbcOperations
+                    .queryForObject(query, parameterSource,
+                            BeanPropertyRowMapper.newInstance(Tag.class));
+        } catch (EmptyResultDataAccessException e) {
+            return null;
         }
     }
 }

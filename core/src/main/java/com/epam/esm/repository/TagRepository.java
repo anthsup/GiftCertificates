@@ -22,10 +22,20 @@ public interface TagRepository extends CrdRepository<Tag> {
      * Method that finds all the tags belonging to
      * a particular gift certificate
      *
-     * @param certificateId ID of the certificate whose tags are being requested
+     * @param certificateId ID of a certificate whose tags are being requested
+     *
      * @return list of tags if anything is found, empty collection otherwise
      */
     List<Tag> getCertificateTags(long certificateId);
+
+    /**
+     * Method that retains only provided tags for
+     * a particular gift certificate
+     *
+     * @param certificateId ID of a certificate whose tags are provided
+     * @param retainedTagIds ids of tags to be retained
+     */
+    void retainCertificateTags(long certificateId, List<Long> retainedTagIds);
 
     /**
      * Method that creates new tags and binds them to
@@ -33,8 +43,10 @@ public interface TagRepository extends CrdRepository<Tag> {
      *
      * @param certificateId gift certificate whose tags are being created
      * @param newTags       list of tags which are being created
+     *
+     * @return list of created tags with generated IDs
      */
-    void createNewTags(long certificateId, List<Tag> newTags);
+    List<Tag> createNewTags(long certificateId, List<Tag> newTags);
 
     /**
      * Method that returns all tags from a database
@@ -42,4 +54,12 @@ public interface TagRepository extends CrdRepository<Tag> {
      * @return all the tags from a database or empty collection if nothing found
      */
     List<Tag> getAll();
+
+    /**
+     * Method that finds a tag in a database by its name
+     *
+     * @param tagName name of a tag being searched
+     * @return a tag if it exists or null otherwise
+     */
+    Tag readByName(String tagName);
 }

@@ -30,7 +30,7 @@ public class GiftCertificateController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<GiftCertificate> create(@RequestBody GiftCertificate certificate, UriComponentsBuilder ucb) {
         RestValidator.checkNotNull(certificate);
-        certificate = RestValidator.checkFound(certificateService.add(certificate));
+        certificate = RestValidator.checkFound(certificateService.create(certificate));
         URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificate.getId())).build().toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(locationUri);
@@ -46,7 +46,7 @@ public class GiftCertificateController {
     @GetMapping(value = "/{certificateId}")
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificate getById(@PathVariable long certificateId) {
-        return RestValidator.checkFound(certificateService.get(certificateId));
+        return RestValidator.checkFound(certificateService.read(certificateId));
     }
 
     /**
@@ -62,8 +62,8 @@ public class GiftCertificateController {
     public ResponseEntity<Void> update(@PathVariable long certificateId, @RequestBody GiftCertificate certificate,
                                        UriComponentsBuilder ucb) {
         RestValidator.checkNotNull(certificate);
-        RestValidator.updatedEntityIdValid(certificateId, certificate);
-        RestValidator.checkFound(certificateService.get(certificateId));
+        RestValidator.checkFound(certificateService.read(certificateId));
+        certificate.setId(certificateId);
 
         URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificateId)).build().toUri();
         HttpHeaders headers = new HttpHeaders();

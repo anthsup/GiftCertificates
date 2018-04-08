@@ -9,12 +9,12 @@ public interface CrdService<T> {
      *
      * @throws com.epam.esm.exception.ValidationException when provided entity is null
      */
-    T add(T t);
+    T create(T t);
 
     /**
      * {@link com.epam.esm.repository.CrdRepository#read(long)}
      */
-    T get(long id);
+    T read(long id);
 
     /**
      * {@link com.epam.esm.repository.CrdRepository#delete(long)}

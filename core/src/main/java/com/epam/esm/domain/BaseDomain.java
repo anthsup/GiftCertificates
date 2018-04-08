@@ -1,6 +1,6 @@
 package com.epam.esm.domain;
 
-abstract class BaseDomain {
+public abstract class BaseDomain {
     private long id;
 
     public long getId() {
