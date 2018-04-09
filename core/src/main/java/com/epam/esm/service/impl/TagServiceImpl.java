@@ -25,8 +25,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Tag read(long id) {
-        return tagRepository.read(id);
+    public Tag get(long id) {
+        return tagRepository.get(id);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class GiftCertificateRepositoryImplTest {
         GiftCertificate updatedCertificate = new GiftCertificate.Builder()
                 .id(2L).name("updated").price(BigDecimal.ONE).build();
         certificateRepository.update(updatedCertificate);
-        assertEquals("updated", certificateRepository.read(updatedCertificate.getId()).getName());
+        assertEquals("updated", certificateRepository.get(updatedCertificate.getId()).getName());
     }
 
     @Test
@@ -62,18 +62,18 @@ public class GiftCertificateRepositoryImplTest {
 
     @Test
     public void readReturnsGiftCertificateWhenGivenValidId() {
-        assertNotNull(certificateRepository.read(3L));
+        assertNotNull(certificateRepository.get(3L));
     }
 
     @Test
     public void readReturnsNullWhenGivenInvalidId() {
-        assertNull(certificateRepository.read(45L));
+        assertNull(certificateRepository.get(45L));
     }
 
     @Test
     public void delete() {
         certificateRepository.delete(1L);
-        assertNull(certificateRepository.read(1L));
+        assertNull(certificateRepository.get(1L));
     }
 
     @Test

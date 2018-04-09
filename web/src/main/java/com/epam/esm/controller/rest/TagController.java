@@ -4,11 +4,10 @@ import com.epam.esm.controller.rest.util.RestValidator;
 import com.epam.esm.domain.Tag;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -26,14 +25,13 @@ public class TagController {
      * @return Response entity with CREATED http status code and location of the new resource
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Tag> create(@RequestBody Tag tag, UriComponentsBuilder ucb) {
+    public ResponseEntity<Tag> create(@RequestBody Tag tag) {
         RestValidator.checkNotNull(tag);
         tag = RestValidator.checkFound(tagService.create(tag));
-        URI locationUri = ucb.path("/api/tags/").path(String.valueOf(tag.getId())).build().toUri();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(locationUri);
-        return new ResponseEntity<>(tag, headers, HttpStatus.CREATED);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{tagId}").buildAndExpand(tag.getId()).toUri();
+        return ResponseEntity.created(location).body(tag);
     }
 
     /**
@@ -45,7 +43,7 @@ public class TagController {
     @GetMapping(value = "/{tagId}")
     @ResponseStatus(HttpStatus.OK)
     public Tag get(@PathVariable long tagId) {
-        return RestValidator.checkFound(tagService.read(tagId));
+        return RestValidator.checkFound(tagService.get(tagId));
     }
 
     /**

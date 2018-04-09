@@ -60,7 +60,7 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
     }
 
     @Override
-    public GiftCertificate read(long id) {
+    public GiftCertificate get(long id) {
         try {
             return namedParameterJdbcOperations.queryForObject(SELECT_BY_ID,
                     new MapSqlParameterSource("id", id), (rs, rowNum) -> mapRow(rs));

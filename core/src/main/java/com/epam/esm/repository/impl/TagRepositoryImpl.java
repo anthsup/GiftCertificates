@@ -47,8 +47,8 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Tag read(long id) {
-        return readBy(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id));
+    public Tag get(long id) {
+        return getBy(SELECT_TAG_BY_ID, new MapSqlParameterSource("id", id));
     }
 
     @Override
@@ -72,7 +72,8 @@ public class TagRepositoryImpl implements TagRepository {
             return Collections.emptyList();
         }
         return namedParameterJdbcOperations
-                .query(GET_TAGS_BY_IDS, new MapSqlParameterSource("ids", certificateTagIds), BeanPropertyRowMapper.newInstance(Tag.class));
+                .query(GET_TAGS_BY_IDS, new MapSqlParameterSource("ids", certificateTagIds),
+                        BeanPropertyRowMapper.newInstance(Tag.class));
     }
 
     @Override
@@ -100,11 +101,11 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public Tag readByName(String tagName) {
-        return readBy(SELECT_TAG_BY_NAME, new MapSqlParameterSource("name", tagName));
+    public Tag getByName(String tagName) {
+        return getBy(SELECT_TAG_BY_NAME, new MapSqlParameterSource("name", tagName));
     }
 
-    private Tag readBy(String query, MapSqlParameterSource parameterSource) {
+    private Tag getBy(String query, MapSqlParameterSource parameterSource) {
         try {
             return namedParameterJdbcOperations
                     .queryForObject(query, parameterSource,

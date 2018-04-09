@@ -61,8 +61,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
      * Method also sets certificates' tags if they're found
      */
     @Override
-    public GiftCertificate read(long id) {
-        GiftCertificate certificate = certificateRepository.read(id);
+    public GiftCertificate get(long id) {
+        GiftCertificate certificate = certificateRepository.get(id);
         if (certificate != null) {
             setTags(certificate);
         }
@@ -80,7 +80,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             List<Tag> newTags = new ArrayList<>();
             List<Tag> resultingTags = new ArrayList<>();
             tags.forEach(receivedTag -> {
-                Tag tag = tagRepository.readByName(receivedTag.getName());
+                Tag tag = tagRepository.getByName(receivedTag.getName());
                 if (tag == null) {
                     newTags.add(receivedTag);
                 } else {

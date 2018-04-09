@@ -37,13 +37,13 @@ public class TagRepositoryImplTest {
 
     @Test
     public void read() {
-        assertNotNull(tagRepository.read(3L));
+        assertNotNull(tagRepository.get(3L));
     }
 
     @Test
     public void delete() {
         tagRepository.delete(1L);
-        assertNull(tagRepository.read(1L));
+        assertNull(tagRepository.get(1L));
     }
 
     @Test

@@ -70,19 +70,19 @@ public class GiftCertificateServiceImplTest {
     @Test
     public void getReturnsGiftCertificateWhenGivenValidId() {
         when(tagRepository.getCertificateTags(certificate.getId())).thenReturn(Collections.emptyList());
-        when(certificateRepository.read(certificate.getId())).thenReturn(certificate);
-        GiftCertificate actualCertificate = certificateService.read(certificate.getId());
+        when(certificateRepository.get(certificate.getId())).thenReturn(certificate);
+        GiftCertificate actualCertificate = certificateService.get(certificate.getId());
 
-        verify(certificateRepository, times(1)).read(certificate.getId());
+        verify(certificateRepository, times(1)).get(certificate.getId());
         assertEquals(certificate, actualCertificate);
     }
 
     @Test
     public void getReturnsNullWhenGivenInvalidId() {
-        when(certificateRepository.read(13)).thenReturn(null);
-        GiftCertificate actualCertificate = certificateService.read(13);
+        when(certificateRepository.get(13)).thenReturn(null);
+        GiftCertificate actualCertificate = certificateService.get(13);
 
-        verify(certificateRepository, times(1)).read(13);
+        verify(certificateRepository, times(1)).get(13);
         assertNull(actualCertificate);
     }
 

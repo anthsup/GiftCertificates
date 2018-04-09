@@ -4,11 +4,10 @@ import com.epam.esm.controller.rest.util.RestValidator;
 import com.epam.esm.domain.GiftCertificate;
 import com.epam.esm.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -27,14 +26,12 @@ public class GiftCertificateController {
      * @return Response entity with CREATED http status code and location of the new resource
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<GiftCertificate> create(@RequestBody GiftCertificate certificate, UriComponentsBuilder ucb) {
+    public ResponseEntity<GiftCertificate> create(@RequestBody GiftCertificate certificate) {
         RestValidator.checkNotNull(certificate);
         certificate = RestValidator.checkFound(certificateService.create(certificate));
-        URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificate.getId())).build().toUri();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(locationUri);
-        return new ResponseEntity<>(certificate, headers, HttpStatus.CREATED);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{certificateId}").buildAndExpand(certificate.getId()).toUri();
+        return ResponseEntity.created(location).body(certificate);
     }
 
     /**
@@ -46,7 +43,7 @@ public class GiftCertificateController {
     @GetMapping(value = "/{certificateId}")
     @ResponseStatus(HttpStatus.OK)
     public GiftCertificate getById(@PathVariable long certificateId) {
-        return RestValidator.checkFound(certificateService.read(certificateId));
+        return RestValidator.checkFound(certificateService.get(certificateId));
     }
 
     /**
@@ -58,18 +55,15 @@ public class GiftCertificateController {
      * @return Response entity with OK http status code and location of a new resource
      */
     @PutMapping(value = "/{certificateId}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Void> update(@PathVariable long certificateId, @RequestBody GiftCertificate certificate,
-                                       UriComponentsBuilder ucb) {
+    public ResponseEntity<Void> update(@PathVariable long certificateId, @RequestBody GiftCertificate certificate) {
         RestValidator.checkNotNull(certificate);
-        RestValidator.checkFound(certificateService.read(certificateId));
+        RestValidator.checkFound(certificateService.get(certificateId));
         certificate.setId(certificateId);
 
-        URI locationUri = ucb.path("/api/certificates/").path(String.valueOf(certificateId)).build().toUri();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(locationUri);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().buildAndExpand(certificateId).toUri();
         certificateService.update(certificate);
-        return new ResponseEntity<>(headers, HttpStatus.OK);
+        return ResponseEntity.ok().location(location).build();
     }
 
     /**

@@ -12,9 +12,9 @@ public interface CrdService<T> {
     T create(T t);
 
     /**
-     * {@link com.epam.esm.repository.CrdRepository#read(long)}
+     * {@link com.epam.esm.repository.CrdRepository#get(long)}
      */
-    T read(long id);
+    T get(long id);
 
     /**
      * {@link com.epam.esm.repository.CrdRepository#delete(long)}

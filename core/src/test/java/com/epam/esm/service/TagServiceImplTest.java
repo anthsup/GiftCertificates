@@ -47,19 +47,19 @@ public class TagServiceImplTest {
 
     @Test
     public void getReturnsTagWhenGivenValidId() {
-        when(tagRepository.read(tag.getId())).thenReturn(tag);
-        Tag actualTag = tagService.read(tag.getId());
+        when(tagRepository.get(tag.getId())).thenReturn(tag);
+        Tag actualTag = tagService.get(tag.getId());
 
-        verify(tagRepository, times(1)).read(tag.getId());
+        verify(tagRepository, times(1)).get(tag.getId());
         assertEquals(tag, actualTag);
     }
 
     @Test
     public void getReturnsNullWhenGivenInvalidId() {
-        when(tagRepository.read(13)).thenReturn(null);
-        Tag actualTag = tagService.read(13);
+        when(tagRepository.get(13)).thenReturn(null);
+        Tag actualTag = tagService.get(13);
 
-        verify(tagRepository, times(1)).read(13);
+        verify(tagRepository, times(1)).get(13);
         assertNull(actualTag);
     }
 

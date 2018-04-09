@@ -61,5 +61,5 @@ public interface TagRepository extends CrdRepository<Tag> {
      * @param tagName name of a tag being searched
      * @return a tag if it exists or null otherwise
      */
-    Tag readByName(String tagName);
+    Tag getByName(String tagName);
 }

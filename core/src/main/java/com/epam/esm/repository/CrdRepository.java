@@ -20,7 +20,7 @@ public interface CrdRepository<T> {
      * @param id ID of an entity being searched
      * @return entity if it exists or null otherwise
      */
-    T read(long id);
+    T get(long id);
 
     /**
      * Method that deletes an entity by its ID
