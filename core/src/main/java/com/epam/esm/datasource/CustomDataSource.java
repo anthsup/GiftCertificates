@@ -40,7 +40,8 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     @Value("${db.password}")
     private String dbPassword;
 
-    private BlockingQueue<Connection> pool;
+    private BlockingQueue<Connection> freeConnections;
+    private BlockingQueue<Connection> usedConnections;
     private int connectionCount;
     private Lock lock;
 
@@ -50,7 +51,8 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     @PostConstruct
     private void init() {
         try {
-            pool = new ArrayBlockingQueue<>(poolCapacity);
+            freeConnections = new ArrayBlockingQueue<>(poolCapacity);
+            usedConnections = new ArrayBlockingQueue<>(poolCapacity);
             lock = new ReentrantLock();
             Class.forName(driverClassName);
         } catch (ClassNotFoundException e) {
@@ -66,16 +68,17 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     public Connection getConnection() {
         Connection connection;
         try {
-            connection = pool.poll(timeoutSeconds, TimeUnit.SECONDS);
+            connection = freeConnections.poll(timeoutSeconds, TimeUnit.SECONDS);
             lock.lock();
             if (connection == null && connectionCount < poolCapacity) {
                 connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-                pool.offer(connection);
-                connectionCount++;
             }
+
             if (connection == null) {
                 throw new CustomDataSourceException("Too many connections.");
             }
+            usedConnections.offer(connection);
+            connectionCount++;
         } catch (InterruptedException | SQLException e) {
             throw new CustomDataSourceException(e);
         } finally {
@@ -94,12 +97,15 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
     @Override
     public boolean shouldClose(Connection connection) {
         try {
-            if (!connection.isClosed()) {
-                pool.offer(connection);
+            if (usedConnections.contains(connection) && !connection.isClosed()) {
+                usedConnections.remove(connection);
+                freeConnections.offer(connection);
                 return false;
-            } else {
-                pool.remove(connection);
+            } else if (connection.isClosed() && usedConnections.contains(connection)){
+                usedConnections.remove(connection);
                 return true;
+            } else {
+                throw new CustomDataSourceException("Connection you've passed doesn't belong to this pool.");
             }
         } catch (SQLException e) {
             LOGGER.error("Error while closing connection", e);
@@ -109,14 +115,17 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
 
     @PreDestroy
     private void close() {
-        LOGGER.info("Destroying connection pool");
-        pool.forEach(this::closeConnection);
+        LOGGER.info("Destroying connection freeConnections");
+        freeConnections.forEach(this::closeConnection);
+        usedConnections.forEach(this::closeConnection);
     }
 
     private void closeConnection(Connection connection) {
         if (connection != null) {
             try {
-                connection.close();
+                if (!connection.isClosed()) {
+                    connection.close();
+                }
             } catch (SQLException e) {
                 LOGGER.error("Couldn't close connection", e);
             }
