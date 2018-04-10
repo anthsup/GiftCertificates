@@ -29,7 +29,7 @@ public class CustomDataSource extends AbstractDataSource implements SmartDataSou
 
     private BlockingQueue<Connection> freeConnections;
     private BlockingQueue<Connection> usedConnections;
-    private int connectionCount;
+    private volatile int connectionCount;
     private Lock lock;
 
     private CustomDataSource() {

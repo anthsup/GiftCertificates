@@ -24,14 +24,6 @@
         <slf4j.version>1.7.25</slf4j.version>
     </properties>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>resources</directory>
-            </resource>
-        </resources>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
