@@ -32,7 +32,7 @@ public class TagRepositoryImplTest {
     @Test
     public void create() {
         Tag actualTag = tagRepository.create(tag);
-        assertTrue(actualTag.getId() != 0);
+        assertNotNull(actualTag.getId());
     }
 
     @Test

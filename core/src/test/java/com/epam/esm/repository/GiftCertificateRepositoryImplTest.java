@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +51,7 @@ public class GiftCertificateRepositoryImplTest {
     public void createReturnsEntityWithIdWhenGivenValidEntity() {
         certificate = new GiftCertificate.Builder().name("certificate").price(BigDecimal.TEN).build();
         GiftCertificate actualCertificate = certificateRepository.create(certificate);
-        assertTrue(actualCertificate.getId() != 0);
+        assertNotNull(actualCertificate.getId());
     }
 
     @Test(expected = DataAccessException.class)
@@ -79,7 +79,7 @@ public class GiftCertificateRepositoryImplTest {
     @Test
     public void searchSortsCertificates() {
         List<GiftCertificate> found = certificateRepository.search(tag, name, description, sortBy);
-        assertEquals(LocalDate.of(2018, 3, 30), found.get(0).getCreationDate());
+        assertEquals(LocalDateTime.of(2018, 3, 30, 10, 15, 30), found.get(0).getCreationDate());
     }
 
     @Test

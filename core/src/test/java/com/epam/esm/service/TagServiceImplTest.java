@@ -28,7 +28,7 @@ public class TagServiceImplTest {
     @Before
     public void setUp() {
         tag = new Tag();
-        tag.setId(42);
+        tag.setId(42L);
     }
 
     @Test

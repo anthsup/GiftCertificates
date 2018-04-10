@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,8 +80,8 @@ public class GiftCertificateRepositoryImpl implements GiftCertificateRepository 
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .price(rs.getBigDecimal("price"))
-                .creationDate(rs.getObject("creation_date", LocalDate.class))
-                .lastModificationDate(rs.getObject("modification_date", LocalDate.class))
+                .creationDate(rs.getObject("creation_date", LocalDateTime.class))
+                .lastModificationDate(rs.getObject("modification_date", LocalDateTime.class))
                 .durationInDays(rs.getLong("duration_days"))
                 .build();
     }

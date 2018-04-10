@@ -6,8 +6,8 @@ CREATE TABLE certificate
   name              CHARACTER VARYING(120) NOT NULL,
   description       TEXT,
   price             NUMERIC(10, 2)         NOT NULL,
-  creation_date     DATE,
-  modification_date DATE,
+  creation_date     TIMESTAMP,
+  modification_date TIMESTAMP,
   duration_days     INTEGER,
   CONSTRAINT gift_certificate_pkey PRIMARY KEY (id)
 );

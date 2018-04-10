@@ -52,6 +52,20 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
+    public Tag getByName(String tagName) {
+        return getBy(SELECT_TAG_BY_NAME, new MapSqlParameterSource("name", tagName));
+    }
+
+    @Override
+    public List<Tag> getAll() {
+        try {
+            return namedParameterJdbcOperations.query(SELECT_ALL, BeanPropertyRowMapper.newInstance(Tag.class));
+        } catch (DataAccessException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
     public void delete(long id) {
         namedParameterJdbcOperations.update(DELETE_TAG_BY_ID, new MapSqlParameterSource("id", id));
     }
@@ -77,9 +91,9 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public void retainCertificateTags(long certificateId, List<Long> tagIds) {
+    public void retainCertificateTags(long certificateId, List<Long> retainedTagsIds) {
         SqlParameterSource parameterSource = new MapSqlParameterSource("certificateId", certificateId)
-                .addValue("tagIds", tagIds);
+                .addValue("tagIds", retainedTagsIds);
         namedParameterJdbcOperations
                 .update(DELETE_ALL_EXCEPT_PROVIDED, parameterSource);
     }
@@ -89,20 +103,6 @@ public class TagRepositoryImpl implements TagRepository {
         List<Tag> createdTags = newTags.stream().map(this::create).collect(Collectors.toList());
         createdTags.forEach(tag -> createCertificateTag(certificateId, tag.getId()));
         return createdTags;
-    }
-
-    @Override
-    public List<Tag> getAll() {
-        try {
-            return namedParameterJdbcOperations.query(SELECT_ALL, BeanPropertyRowMapper.newInstance(Tag.class));
-        } catch (DataAccessException e) {
-            return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public Tag getByName(String tagName) {
-        return getBy(SELECT_TAG_BY_NAME, new MapSqlParameterSource("name", tagName));
     }
 
     private Tag getBy(String query, MapSqlParameterSource parameterSource) {

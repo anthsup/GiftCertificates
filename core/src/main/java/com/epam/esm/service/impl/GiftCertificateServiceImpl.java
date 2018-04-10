@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public void update(GiftCertificate certificate) {
-        updateTags(certificate, true);
+        parseCertificateTags(certificate, true);
         certificateRepository.update(certificate);
     }
 
@@ -50,7 +51,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             throw new ValidationException("GiftCertificate you've provided is null!");
         }
         certificate = certificateRepository.create(certificate);
-        updateTags(certificate, false);
+        parseCertificateTags(certificate, false);
 
         return certificate;
     }
@@ -74,32 +75,40 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         certificateRepository.delete(id);
     }
 
-    private void updateTags(GiftCertificate certificate, boolean certificateExists) {
+    private void parseCertificateTags(GiftCertificate certificate, boolean certificateExists) {
         List<Tag> tags = certificate.getTags();
         if (!CollectionUtils.isEmpty(tags)) {
             List<Tag> newTags = new ArrayList<>();
-            List<Tag> resultingTags = new ArrayList<>();
+            List<Tag> existingTags = new ArrayList<>();
             tags.forEach(receivedTag -> {
                 Tag tag = tagRepository.getByName(receivedTag.getName());
                 if (tag == null) {
                     newTags.add(receivedTag);
                 } else {
-                    resultingTags.add(tag);
+                    existingTags.add(tag);
                 }
             });
 
-            if (!certificateExists && !resultingTags.isEmpty()) {
-                resultingTags.forEach(tag -> tagRepository.createCertificateTag(certificate.getId(), tag.getId()));
-            } else if (certificateExists) {
-                tagRepository.retainCertificateTags(certificate.getId(),
-                        resultingTags.stream().map(tag -> tag.getId()).collect(Collectors.toList()));
-            }
-
-            if (!newTags.isEmpty()) {
-                resultingTags.addAll(tagRepository.createNewTags(certificate.getId(), newTags));
-            }
-            certificate.setTags(resultingTags);
+            parseExistingTags(existingTags, certificate.getId(), certificateExists);
+            existingTags.addAll(parseNewTags(newTags, certificate.getId()));
+            certificate.setTags(existingTags);
         }
+    }
+
+    private void parseExistingTags(List<Tag> existingTags, long certificateId, boolean certificateExists) {
+        if (!certificateExists && !existingTags.isEmpty()) {
+            existingTags.forEach(tag -> tagRepository.createCertificateTag(certificateId, tag.getId()));
+        } else if (certificateExists) {
+            tagRepository.retainCertificateTags(certificateId,
+                    existingTags.stream().map(tag -> tag.getId()).collect(Collectors.toList()));
+        }
+    }
+
+    private List<Tag> parseNewTags(List<Tag> newTags, long certificateId) {
+        if (!newTags.isEmpty()) {
+            return tagRepository.createNewTags(certificateId, newTags);
+        }
+        return Collections.emptyList();
     }
 
     private void setTags(GiftCertificate certificate) {

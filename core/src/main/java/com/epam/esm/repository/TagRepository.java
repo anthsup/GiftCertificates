@@ -33,9 +33,9 @@ public interface TagRepository extends CrdRepository<Tag> {
      * a particular gift certificate
      *
      * @param certificateId ID of a certificate whose tags are provided
-     * @param retainedTagIds ids of tags to be retained
+     * @param retainedTagsIds ids of tags to be retained
      */
-    void retainCertificateTags(long certificateId, List<Long> retainedTagIds);
+    void retainCertificateTags(long certificateId, List<Long> retainedTagsIds);
 
     /**
      * Method that creates new tags and binds them to
