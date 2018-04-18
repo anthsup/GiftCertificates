@@ -1,0 +1,8 @@
+canvas {
+    border: 1px solid black;
+}
+
+.inline {
+    display: flex;
+    justify-content: space-around;
+}

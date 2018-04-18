@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game of Life</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script src="js/app.js"></script>
+</head>
+<body>
+<div class="inline">
+    <div>
+        <canvas id="environment" style="visibility: hidden"></canvas>
+    </div>
+
+    <div id="preconditions">
+        <label for="fieldSize">Grid size:</label>
+        <input type="text" id="fieldSize" value="100">
+        <br>
+
+        <label for="iterations">Number of iterations:</label>
+        <input type="text" id="iterations" value="100">
+        <br>
+
+        <label for="lifeCellsDensity">Life cells density:</label>
+        <input type="text" id="lifeCellsDensity" value="0.5">
+        <br>
+
+        <label for="predatorsDensity">Predators density:</label>
+        <input type="text" id="predatorsDensity" value="0.5">
+        <br>
+
+        <label for="predatorLifetimePeriod">Predator's lifetime:</label>
+        <input type="text" id="predatorLifetimePeriod" value="150">
+        <br>
+
+        <label for="reproductionPeriod">Reproductive period:</label>
+        <input type="text" id="reproductionPeriod" value="50">
+        <br>
+
+        <label for="updateInterval">Update interval:</label>
+        <input type="text" id="updateInterval" value="250">
+        <br>
+
+        <br>
+        <input type="submit" onclick="start()" value="Start simulation">
+    </div>
+</div>
+</body>
+</html>
