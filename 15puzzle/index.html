@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="js/app.js"></script>
+    <title></title>
+</head>
+<body>
+<header class="masthead mb-auto text-center">
+    <p class="navbar-text ml-auto moves-counter">Total moves: <span class="moves"></span></p>
+    <p class="navbar-text mr-auto">Time passed: <span class="timer">0</span></p>
+</header>
+
+<div class="container puzzle text-center">
+    <div class="row">
+        <div class="tile col-md" id="00"></div>
+        <div class="tile col-md" id="10"></div>
+        <div class="tile col-md" id="20"></div>
+        <div class="tile col-md" id="30"></div>
+    </div>
+
+    <div class="row">
+        <div class="tile col-md" id="01"></div>
+        <div class="tile col-md" id="11"></div>
+        <div class="tile col-md" id="21"></div>
+        <div class="tile col-md" id="31"></div>
+    </div>
+
+    <div class="row">
+        <div class="tile col-md" id="02"></div>
+        <div class="tile col-md" id="12"></div>
+        <div class="tile col-md" id="22"></div>
+        <div class="tile col-md" id="32"></div>
+    </div>
+
+    <div class="row">
+        <div class="tile col-md" id="03"></div>
+        <div class="tile col-md" id="13"></div>
+        <div class="tile col-md" id="23"></div>
+        <div class="tile col-md" id="33"></div>
+    </div>
+</div>
+
+<footer>
+    <div class="row">
+        <div class="col-md">
+            <button class="btn btn-success float-right" type="button" onclick="app.updateView()">New Game</button>
+        </div>
+
+        <div class="col-md">
+            <button class="btn btn-warning float-left" type="button" onclick="app.drawTiles()">Restore Game</button>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
