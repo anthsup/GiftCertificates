@@ -1,0 +1,32 @@
+.live-editor-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  height: 70vh;
+
+  .input-area {
+    width: 40%;
+    border: 1px solid black;
+
+    textarea {
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
+  }
+
+  .output-area {
+    width: 40%;
+    border: 1px solid black;
+    padding: 10px;
+
+    h1, h2, h3, h4, h5, h6 {
+      margin: 0;
+    }
+  }
+}
+
+header {
+  text-align: center;
+}
