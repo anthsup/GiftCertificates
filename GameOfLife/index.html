@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <title>Game of Life</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
-    <script src="js/app.js"></script>
 </head>
 <body>
 <div class="inline">
     <div>
-        <canvas id="environment" style="visibility: hidden"></canvas>
+        <canvas id="environment"></canvas>
     </div>
 
     <div id="preconditions">
@@ -42,8 +41,15 @@
         <br>
 
         <br>
-        <input type="submit" onclick="start()" value="Start simulation">
+        <input type="submit" class="start" value="Start simulation">
     </div>
 </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="js/gameEntity.js"></script>
+<script src="js/predator.js"></script>
+<script src="js/victim.js"></script>
+<script src="js/simulation.js"></script>
+<script src="js/gameGrid.js"></script>
 </body>
 </html>
