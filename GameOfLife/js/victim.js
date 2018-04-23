@@ -10,7 +10,7 @@ class Victim extends GameEntity {
         let newEntity = simulation.gameArray[newPositionX][newPositionY];
 
         if (newEntity >= simulation.ENTITIES_REPRESENTATION.predator) {
-            this.predatorEatsVictim(simulation, this.x, this.y, newPositionX, newPositionY);
+            simulation.predatorEatsVictim(this.x, this.y, newPositionX, newPositionY);
         } else if (newEntity === simulation.ENTITIES_REPRESENTATION.lifeCell) { // victim moves or reproduces
             this.moveOnOrReproduce(simulation, newPositionX, newPositionY, simulation.ENTITIES_REPRESENTATION.victim);
         }

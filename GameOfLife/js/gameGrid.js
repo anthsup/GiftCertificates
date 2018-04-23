@@ -1,8 +1,10 @@
 class GameGrid {
     constructor() {
-        this.environmentField = document.getElementById('environment');
+        this.environmentField = $('#environment')[0];
         this.ctx = this.environmentField.getContext('2d');
-        this.canvasSize = FIELD_SIZE * 6;
+        // number of times field size is to be multiplied to make it more readable
+        this.CANVAS_SIZE_MODIFIER = 6;
+        this.canvasSize = FIELD_SIZE * this.CANVAS_SIZE_MODIFIER;
         this.predatorImage = new Image();
         this.victimImage = new Image();
         this.predatorImage.src = 'img/red.png';

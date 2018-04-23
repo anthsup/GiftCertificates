@@ -1,11 +1,11 @@
 class Simulation {
     constructor() {
-        this.LIFE_CELLS_DENSITY = Number(document.getElementById('lifeCellsDensity').value);
-        this.PREDATORS_DENSITY = Number(document.getElementById('predatorsDensity').value);
-        this.PREDATOR_LIFETIME_PERIOD = Number(document.getElementById('predatorLifetimePeriod').value);
-        this.REPRODUCTION_PERIOD = Number(document.getElementById('reproductionPeriod').value);
-        this.ITERATIONS = Number(document.getElementById('iterations').value);
-        this.UPDATE_INTERVAL_MILLISECONDS = Number(document.getElementById('updateInterval').value);
+        this.LIFE_CELLS_DENSITY = Number($('#lifeCellsDensity').val());
+        this.PREDATORS_DENSITY = Number($('#predatorsDensity').val());
+        this.PREDATOR_LIFETIME_PERIOD = Number($('#predatorLifetimePeriod').val());
+        this.REPRODUCTION_PERIOD = Number($('#reproductionPeriod').val());
+        this.ITERATIONS = Number($('#iterations').val());
+        this.UPDATE_INTERVAL_MILLISECONDS = Number($('#updateInterval').val());
         this.ENTITIES_REPRESENTATION = {
             lifeCell: 0,
             predator: 1,
@@ -19,7 +19,7 @@ class Simulation {
         this.entities = {};
     }
 
-    updateState() {
+    launchSimulation() {
         if (this.isSimulationOver()) {
             return true;
         }
@@ -35,6 +35,40 @@ class Simulation {
         }
 
         this.iterationCounter++;
+    }
+
+    predatorDies(predatorX, predatorY) {
+        this.gameArray[predatorX][predatorY] = this.ENTITIES_REPRESENTATION.lifeCell; // predator died
+        --this.predatorsNumber;
+        delete this.entities[this.generateKey(predatorX, predatorY)];
+    }
+
+    predatorEatsVictim(victimX, victimY, predatorX, predatorY) {
+        this.gameArray[victimX][victimY] = this.ENTITIES_REPRESENTATION.lifeCell;
+        this.gameArray[predatorX][predatorY] = this.ENTITIES_REPRESENTATION.predator; // reset life time
+        --this.victimsNumber;
+        delete this.entities[this.generateKey(victimX, victimY)];
+    }
+
+    entityMovesOn(oldPositionX, oldPositionY, newPositionX, newPositionY, entityRepresentation) {
+        this.gameArray[oldPositionX][oldPositionY] = this.ENTITIES_REPRESENTATION.lifeCell;
+        const currentEntity = this.entities[this.generateKey(oldPositionX, oldPositionY)];
+        if (entityRepresentation === this.ENTITIES_REPRESENTATION.victim) {
+            this.entities[this.generateKey(newPositionX, newPositionY)] = currentEntity;
+        } else {
+            this.entities[this.generateKey(newPositionX, newPositionY)] = currentEntity;
+        }
+        delete this.entities[this.generateKey(oldPositionX, oldPositionY)];
+    }
+
+    entityReproduces(newPositionX, newPositionY, entityRepresentation) {
+        if (entityRepresentation === this.ENTITIES_REPRESENTATION.victim) {
+            this.victimsNumber++;
+            this.entities[this.generateKey(newPositionX, newPositionY)] = new Victim(newPositionX, newPositionY);
+        } else {
+            this.predatorsNumber++;
+            this.entities[this.generateKey(newPositionX, newPositionY)] = new Predator(newPositionX, newPositionY);
+        }
     }
 
     createEntity(j, k) {
@@ -89,18 +123,37 @@ class Simulation {
         return false;
     }
 
+    // generates unique key for entities object based on entity's coordinates
     generateKey(x, y) {
         return x + ',' + y;
     }
 }
+
+$(function setDefaultParams() {
+    const DEFAULT_FIELD_SIZE = 100;
+    const DEFAULT_ITERATIONS_NUMBER = 100;
+    const DEFAULT_LIFE_CELLS_DENSITY = 0.5;
+    const DEFAULT_PREDATORS_DENSITY = 0.5;
+    const DEFAULT_PREDATOR_LIFETIME = 50;
+    const DEFAULT_REPRODUCTION_PERIOD = 50;
+    const DEFAULT_UPDATE_INTERVAL = 100;
+
+    $('#lifeCellsDensity').val(DEFAULT_LIFE_CELLS_DENSITY);
+    $('#predatorsDensity').val(DEFAULT_PREDATORS_DENSITY);
+    $('#predatorLifetimePeriod').val(DEFAULT_PREDATOR_LIFETIME);
+    $('#reproductionPeriod').val(DEFAULT_REPRODUCTION_PERIOD);
+    $('#iterations').val(DEFAULT_ITERATIONS_NUMBER);
+    $('#updateInterval').val(DEFAULT_UPDATE_INTERVAL);
+    $('#fieldSize').val(DEFAULT_FIELD_SIZE);
+});
 
 let FIELD_SIZE;
 let simulation;
 let gameGrid;
 let gameRunner;
 
-$(".start").click(function () {
-    FIELD_SIZE = Number(document.getElementById('fieldSize').value);
+$("#startButton").click(function () {
+    FIELD_SIZE = Number($('#fieldSize').val());
     simulation = new Simulation();
     gameGrid = new GameGrid();
     simulation.init();
@@ -114,7 +167,7 @@ $(".start").click(function () {
 
 function runSimulation() {
     gameGrid.drawGrid(simulation.gameArray, simulation.ENTITIES_REPRESENTATION);
-    if (simulation.updateState()) {
+    if (simulation.launchSimulation()) {
         return;
     }
     gameRunner = setTimeout(runSimulation, simulation.UPDATE_INTERVAL_MILLISECONDS, gameGrid.ctx);
