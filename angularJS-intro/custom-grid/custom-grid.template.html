@@ -4,11 +4,11 @@
         <input class="form-control" ng-model="$ctrl.filterValue"/>
     </label>
 
-    <button type="button" class="btn btn-default" ng-disabled="$ctrl.isFilterValueEmpty()" ng-click="$ctrl.reset()">
+    <button type="button" class="btn btn-default" ng-disabled="!$ctrl.filterValue" ng-click="$ctrl.reset()">
         Reset Filter
     </button>
 
-    <span ng-if="!$ctrl.isFilterValueEmpty()">Your filter is: {{$ctrl.filterValue}}</span>
+    <span ng-if="$ctrl.filterValue">Your filter is: {{ $ctrl.filterValue }}</span>
 
     <table class="custom-grid table table-striped">
         <thead>
