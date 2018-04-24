@@ -5,7 +5,7 @@ class Calculator {
         this.calculatorKeyCodes = {
             48: "0", 49: "1", 50: "2", 51: "3", 52: "4", 53: "5", 54: "6",
             55: "7", 56: "8", 57: "9", 42: "x", 43: "+", 45: "-", 46: ".",
-            47: "÷", 13: "=", 61: "=", 8: "C"
+            47: "÷", 13: "=", 61: "=", 8: "CE", 99: "C", 67: "C"
         };
     }
 
@@ -19,6 +19,7 @@ class Calculator {
         }
 
         if (evaluation) {
+            this.decimalAdded = false;
             return eval(evaluation);
         }
     }
@@ -31,10 +32,21 @@ class Calculator {
 
     }
 
-    clear(calc) {
-        calc.isEvaluated = false;
+    clear() {
         this.decimalAdded = false;
         return '';
+    }
+
+    cancelLastEntry(inputValue) {
+        if (inputValue.slice(-1) === '.') {
+            this.decimalAdded = false;
+        }
+
+        const result = inputValue.slice(0, inputValue.length - 1);
+        if (result.slice(-1) === '.') {
+            this.decimalAdded = true;
+        }
+        return result;
     }
 
     appendOperator(inputScreen, inputValue, btnVal) {
@@ -52,28 +64,31 @@ class Calculator {
     }
 }
 
-function init(calc) {
-    $('section a').each(function() {
-        $(this).on("click", function(e) {
-            let input = $(this).text();
-            parseInput(e, calc, input);
-        });
-    })
-}
+$(function () {
+    let calculator = new Calculator();
+
+    $('section a').click(function(e) {
+        let input = $(this).text();
+        parseInput(e, calculator, input);
+    });
+
+    $(document).keypress(function(event){
+        console.log(event.which);
+        parseKeyboardKeyCode(calculator, event, event.which);
+    });
+});
 
 function parseInput(e, calc, btnVal) {
     const inputScreen = $('.screen');
     let inputValue = inputScreen.text();
 
-    if (calc.isEvaluated) {
-        inputValue = calc.clear(calc);
-    }
     if (btnVal === 'C') {
-        inputScreen.text(calc.clear(calc));
+        inputScreen.text(calc.clear());
+    } else if (btnVal === 'CE') {
+        inputScreen.text(calc.cancelLastEntry(inputValue));
     } else if (btnVal === '=') {
         inputScreen.text(calc.evaluate(inputValue));
-        calc.isEvaluated = true;
-    } else if (calc.operators.indexOf(btnVal) > -1) {
+    } else if (calc.operators.includes(btnVal)) {
         calc.appendOperator(inputScreen, inputValue, btnVal);
     } else if (btnVal === '.') {
         calc.dot(inputScreen, btnVal);
@@ -84,19 +99,8 @@ function parseInput(e, calc, btnVal) {
     e.preventDefault();
 }
 
-let calculator = new Calculator();
-
-function parseKeyboardKeyCode(event, key) {
-    if (calculator.calculatorKeyCodes[key] !== undefined) {
+function parseKeyboardKeyCode(calculator, event, key) {
+    if (calculator.calculatorKeyCodes[key]) {
         parseInput(event, calculator, calculator.calculatorKeyCodes[key]);
     }
 }
-
-window.onload = function () {
-    init(calculator);
-};
-
-$(document).keypress(function(event){
-    console.log(event.which);
-    parseKeyboardKeyCode(event, event.which);
-});
