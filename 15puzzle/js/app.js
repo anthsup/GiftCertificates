@@ -1,81 +1,32 @@
-const solvability = {
-    emptyTileRow: null,
+class App {
+    constructor() {
+        this.rowSize = null;
+        this.tileArray = []; // tiles array with key(1-16 flattened value) and value (tileId)
+        this.tileIndexes = [];
+        this.totalMoves = 0;
+        this.time = 0;
+        this.timer = null;
+    }
 
-    checkSolvability: function () {
-        let inversions = 0;
-        const listToCheck = solvability.convertListOrder(); // flattened order with values 1-15 (without empty tile)
+    init(solvabilityUtilInstance) {
+        this.getRowSize();
+        this.setListenerToTile();
+        this.updateView(solvabilityUtilInstance);
+    }
 
-        for (let i = 0; i < listToCheck.length; i++) {
-            for (let j = i + 1; j < listToCheck.length; j++) {
-                if ((listToCheck[i].flattenedValue > listToCheck[j].flattenedValue)) {
-                    inversions++;
-                }
-            }
-        }
+    getRowSize() {
+        this.rowSize = $('.container > .row').length;
+    }
 
-        return solvability.checkInversion(inversions);
-    },
-
-    checkInversion: function (inversions) {
-        if (app.rowSize % 2 === 1) { // odd numbered row (3x3, 5x5..)
-            return (inversions % 2 === 0);
-        } else { // even numbered row (4x4...)
-            console.log("odd inversion + odd distance/ even inversion - even distance : solvability :" +
-                ((inversions + app.rowSize - solvability.emptyTileRow) % 2 === 0));
-            console.log("inversion: " + inversions + " empty tile : " + solvability.emptyTileRow +
-                ", row distance between empty and bottom: " + (app.rowSize - solvability.emptyTileRow));
-
-            return ((inversions + app.rowSize - solvability.emptyTileRow) % 2 === 0);
-        }
-    },
-
-    convertListOrder: function () {
-        const flattenedOrder = [];
-        // index written out in a flattened order (0,4,8,12,1,5,9,13,2,6,10,14,3,7,11,15)
-        for (let j = 0; j < app.rowSize; j++) {
-            for (let k = 0; k < app.rowSize; k++) {
-                flattenedOrder.push(app.tileArray[(k * app.rowSize) + j]);
-            }
-        }
-
-        $.each(flattenedOrder, function (i) {
-            if (this.tileId === (app.rowSize - 1) * 11) {
-                solvability.emptyTileRow = Math.floor(i / 4) + 1;
-            }
-        });
-
-        return $.grep(flattenedOrder, function (n) {
-            return n.flattenedValue !== (app.rowSize * app.rowSize);
+    setListenerToTile() {
+        const self = this;
+        $('.tile').on('click', function () {
+            self.swapTiles($("#" + this.id));
         });
     }
-};
 
-const app = {
-    rowSize: null,
-    tileArray: [], // tiles array with key(1-16 flattened value) and value (tileId)
-    tileIndex: [],
-    totalMoves: 0,
-    time: 0,
-    timer: null,
-
-    init: function () {
-        app.getRowSize();
-        app.setListenerToTile();
-        app.updateView();
-    },
-
-    getRowSize: function () {
-        app.rowSize = $('.container > .row').length;
-    },
-
-    setListenerToTile: function () {
-        $('.tile').on('click', function () {
-            app.swap($("#" + this.id));
-        });
-    },
-
-    swap: function (clickedTile) {
-        if (!clickedTile.hasClass('.empty')) {
+    swapTiles(clickedTile) {
+        if (!clickedTile.hasClass('empty')) {
             const emptyTileIndex = $(".empty").attr('id');
             const id = clickedTile.attr('id').split('');
             const x = parseInt(id[0]);
@@ -86,7 +37,7 @@ const app = {
             const dx = [-1, 0, 1, 0];
             const dy = [0, 1, 0, -1];
 
-            for (let i = 0; i < app.rowSize; i++) {
+            for (let i = 0; i < this.rowSize; i++) {
                 const xToCheck = (x + dx[i]).toString();
                 const yToCheck = (y + dy[i]).toString();
 
@@ -94,42 +45,43 @@ const app = {
                     emptyTile.text(clickedTile.text()).removeClass('empty');
                     clickedTile.text('').addClass('empty');
 
-                    $('.moves').text(++app.totalMoves);
-                    app.checkWin();
+                    $('#moves').text(++this.totalMoves);
+                    this.checkWin();
                 }
             }
         }
-    },
+    }
 
-    updateView: function () {
-        if (app.tileIndex.length !== 0 || app.tileArray.length !== 0) {
-            app.tileIndex.length = 0;
-            app.tileArray.length = 0;
+    updateView(solvabilityUtilInstance) {
+        if (this.tileIndexes.length !== 0 || this.tileArray.length !== 0) {
+            this.tileIndexes.length = 0;
+            this.tileArray.length = 0;
         }
 
-        for (let i = 0; i < app.rowSize; i++) {
-            for (let j = 0; j < app.rowSize; j++) {
-                const flattenedValue = (i + 1) + (j * app.rowSize);
+        for (let i = 0; i < this.rowSize; i++) {
+            for (let j = 0; j < this.rowSize; j++) {
+                const flattenedValue = (i + 1) + (j * this.rowSize);
 
-                app.tileArray.push({
+                this.tileArray.push({
                     "flattenedValue": flattenedValue,
                     "tileId": i.toString() + j.toString()
                 });
 
-                app.tileIndex.push(i.toString() + j.toString());
+                this.tileIndexes.push(i.toString() + j.toString());
             }
         }
 
         // shuffle until it is solvable.
         do {
-            app.shuffleList(app.tileArray);
-        } while (!solvability.checkSolvability());
+            this.shuffleList(this.tileArray);
+        } while (!solvabilityUtilInstance.checkSolvability(this.rowSize, this.tileArray));
 
-        app.drawTiles();
-    },
+        this.drawTiles();
+    }
 
-    shuffleList: function (array) {
-        //Fisher-Yates Shuffle
+    // Fisher-Yates Shuffle
+    // https://bost.ocks.org/mike/shuffle/
+    shuffleList(array) {
         let m = array.length,
             t, i;
 
@@ -140,35 +92,38 @@ const app = {
             array[m] = array[i];
             array[i] = t;
         }
-    },
+    }
 
-    drawTiles: function() {
-        $.each(app.tileIndex, function (i) {
-            const cell = $("#" + this).text(app.tileArray[i].flattenedValue);
+    drawTiles() {
+        const self = this;
+        $.each(this.tileIndexes, function (i) {
+            const cell = $("#" + this).text(self.tileArray[i].flattenedValue);
 
-            if (app.tileArray[i].flattenedValue === (app.rowSize * app.rowSize)) {
+            if (self.tileArray[i].flattenedValue === (self.rowSize * self.rowSize)) {
                 cell.addClass('empty').text('');
-            } else if (cell.hasClass('empty') && cell.text() != (app.rowSize * app.rowSize)) {
+            } else if (cell.hasClass('empty') && cell.text() != (self.rowSize * self.rowSize)) {
                 cell.removeClass('empty');
             }
 
-            $('.moves').text(app.totalMoves = 0);
+            $('#moves').text(self.totalMoves = 0);
 
-            if (app.timer != null) {
-                app.time = 0;
-                clearInterval(app.timer);
+            if (self.timer != null) {
+                self.time = 0;
+                clearInterval(self.timer);
             }
-            app.startTimer();
+            $('#timer').text(self.time);
+            self.startTimer();
         });
-    },
+    }
 
-    startTimer: function() {
-        app.timer = setInterval(function () {
-            $('.timer').text(++app.time);
+    startTimer() {
+        const self = this;
+        this.timer = setInterval(function () {
+            $('#timer').text(++self.time);
         }, 1000);
-    },
+    }
 
-    checkWin: function () {
+    checkWin() {
         let condition = true;
         let num = 0;
 
@@ -183,10 +138,25 @@ const app = {
         });
 
         if (condition) {
-            clearInterval(app.timer);
-            alert('You\'ve won in ' + app.totalMoves + ' moves!');
+            clearInterval(this.timer);
+            alert('You\'ve won in ' + this.totalMoves + ' moves!');
         }
-    },
-};
+    }
+}
 
-$(app.init);
+let app;
+let solvabilityUtilInstance;
+
+$(function () {
+    app = new App();
+    solvabilityUtilInstance = new SolvabilityUtil();
+    app.init(solvabilityUtilInstance);
+});
+
+$('#newGame').click(() => {
+    app.updateView(solvabilityUtilInstance);
+});
+
+$('#restoreGame').click(() => {
+    app.drawTiles();
+});
