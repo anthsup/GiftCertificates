@@ -129,28 +129,21 @@ class Simulation {
     }
 }
 
-$(function setDefaultParams() {
-    const DEFAULT_FIELD_SIZE = 100;
-    const DEFAULT_ITERATIONS_NUMBER = 100;
-    const DEFAULT_LIFE_CELLS_DENSITY = 0.5;
-    const DEFAULT_PREDATORS_DENSITY = 0.5;
-    const DEFAULT_PREDATOR_LIFETIME = 50;
-    const DEFAULT_REPRODUCTION_PERIOD = 50;
-    const DEFAULT_UPDATE_INTERVAL = 100;
-
-    $('#lifeCellsDensity').val(DEFAULT_LIFE_CELLS_DENSITY);
-    $('#predatorsDensity').val(DEFAULT_PREDATORS_DENSITY);
-    $('#predatorLifetimePeriod').val(DEFAULT_PREDATOR_LIFETIME);
-    $('#reproductionPeriod').val(DEFAULT_REPRODUCTION_PERIOD);
-    $('#iterations').val(DEFAULT_ITERATIONS_NUMBER);
-    $('#updateInterval').val(DEFAULT_UPDATE_INTERVAL);
-    $('#fieldSize').val(DEFAULT_FIELD_SIZE);
-});
-
 let FIELD_SIZE;
 let simulation;
 let gameGrid;
 let gameRunner;
+
+$(function () {
+    setDefaultParams();
+
+    const validationInterval = setInterval(function() {
+        if ($("input[type=number]:invalid").length > 0) {
+            $("#startButton").attr("disabled", true);
+            clearInterval(validationInterval);
+        }
+    }, 250);
+});
 
 $("#startButton").click(function () {
     FIELD_SIZE = Number($('#fieldSize').val());
@@ -173,3 +166,20 @@ function runSimulation() {
     gameRunner = setTimeout(runSimulation, simulation.UPDATE_INTERVAL_MILLISECONDS, gameGrid.ctx);
 }
 
+function setDefaultParams() {
+    const DEFAULT_FIELD_SIZE = 100;
+    const DEFAULT_ITERATIONS_NUMBER = 100;
+    const DEFAULT_LIFE_CELLS_DENSITY = 0.5;
+    const DEFAULT_PREDATORS_DENSITY = 0.5;
+    const DEFAULT_PREDATOR_LIFETIME = 50;
+    const DEFAULT_REPRODUCTION_PERIOD = 50;
+    const DEFAULT_UPDATE_INTERVAL = 100;
+
+    $('#lifeCellsDensity').val(DEFAULT_LIFE_CELLS_DENSITY);
+    $('#predatorsDensity').val(DEFAULT_PREDATORS_DENSITY);
+    $('#predatorLifetimePeriod').val(DEFAULT_PREDATOR_LIFETIME);
+    $('#reproductionPeriod').val(DEFAULT_REPRODUCTION_PERIOD);
+    $('#iterations').val(DEFAULT_ITERATIONS_NUMBER);
+    $('#updateInterval').val(DEFAULT_UPDATE_INTERVAL);
+    $('#fieldSize').val(DEFAULT_FIELD_SIZE);
+}

@@ -13,31 +13,31 @@
 
     <div id="preconditions">
         <label for="fieldSize">Grid size:</label>
-        <input type="text" id="fieldSize">
+        <input type="number" class="valid" min="2" max="1000" id="fieldSize">
         <br>
 
         <label for="iterations">Number of iterations:</label>
-        <input type="text" id="iterations">
+        <input type="number" min="1" class="valid" id="iterations">
         <br>
 
         <label for="lifeCellsDensity">Life cells density:</label>
-        <input type="text" id="lifeCellsDensity">
+        <input type="number" min="0" class="valid" max="0.99" step="0.01" id="lifeCellsDensity">
         <br>
 
         <label for="predatorsDensity">Predators density:</label>
-        <input type="text" id="predatorsDensity">
+        <input type="number" min="0" class="valid" max="0.99" step="0.01" id="predatorsDensity">
         <br>
 
         <label for="predatorLifetimePeriod">Predator's lifetime:</label>
-        <input type="text" id="predatorLifetimePeriod">
+        <input type="number" min="1" class="valid" id="predatorLifetimePeriod">
         <br>
 
         <label for="reproductionPeriod">Reproductive period:</label>
-        <input type="text" id="reproductionPeriod">
+        <input type="number" min="1" class="valid" id="reproductionPeriod">
         <br>
 
         <label for="updateInterval">Update interval:</label>
-        <input type="text" id="updateInterval">
+        <input type="number" min="1" class="valid" id="updateInterval">
         <br>
 
         <br>

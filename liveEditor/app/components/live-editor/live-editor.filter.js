@@ -3,7 +3,7 @@ export default function($sce) {
 
     const MAX_HEADING_LEVEL = 6;
 
-    function replaceBold(line) {
+    function replaceItalics(line) {
         return line.trim().replace(/(\*|__)(.*?)\1/g, '<i>$2</i>');
     }
 
@@ -28,7 +28,7 @@ export default function($sce) {
     function applyMarkdown(input) {
         return input
             .split('\n')
-            .map(replaceBold)
+            .map(replaceItalics)
             .map(replaceDel)
             .map(replaceHeading)
             .join('\n');
