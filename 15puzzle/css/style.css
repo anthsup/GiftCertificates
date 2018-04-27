@@ -1,0 +1,23 @@
+.puzzle {
+    width: 350px;
+    border: 5px solid darkred;
+    margin-bottom: 15px;
+}
+
+.tile {
+    font-size: 30px;
+    background: lightseagreen;
+    border: 1px solid black;
+    border-radius: 5px;
+    height: 75px;
+}
+
+.empty {
+    background: none;
+    border: none;
+}
+
+.moves-counter {
+    padding-right: 10px;
+}
+

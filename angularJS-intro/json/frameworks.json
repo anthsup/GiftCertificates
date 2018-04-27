@@ -1,0 +1,112 @@
+{
+  "columns":[
+    {
+      "field": "name",
+      "displayName": "Name"
+    },
+    {
+      "field": "site",
+      "displayName": "Site"
+    },
+    {
+      "field": "description",
+      "displayName": "Description"
+    },
+    {
+      "field": "ration",
+      "displayName": "CurrentRating"
+    }
+  ],
+  "frameworks":[
+    {
+      "name": "AngularJS",
+      "site": "https://angularjs.org/",
+      "description": "HTML enhanced for web apps!",
+      "rating": 8.6
+    },
+    {
+      "name": "Angular",
+      "site": "https://angular.io/",
+      "description": "One framework. Mobile and desktop.",
+      "rating": 10
+    },
+    {
+      "name": "jQuery",
+      "site": "https://jquery.com/",
+      "description": "Write less, do more.",
+      "rating": 9
+    },
+    {
+      "name": "Backbone",
+      "site": "https://backbonejs.org/",
+      "description": "Models for your apps.",
+      "rating": 8
+    },
+    {
+      "name": "SproutCore",
+      "site": "https://sproutcore.com/",
+      "description": "A framework for innovative web apps.",
+      "rating": 3
+    },
+    {
+      "name": "Polymer",
+      "site": "https://polymer-project.org/",
+      "description": "Reusable components for the modern web.",
+      "rating": 7
+    },
+    {
+      "name": "Vue.js",
+      "site": "https://vuejs.org/",
+      "description": "The Progressive Javascript Framework.",
+      "rating": 6
+    },
+    {
+      "name": "Cappuccino",
+      "site": "https://cappuccino-project.org/",
+      "description": "Objective-J",
+      "rating": 9
+    },
+    {
+      "name": "Knockout",
+      "site": "https://knockoutjs.com/",
+      "description": "MVVM pattern.",
+      "rating": 6
+    },
+    {
+      "name": "GWT",
+      "site": "https://gwtproject.org/",
+      "description": "JS in Java.",
+      "rating": 3
+    },
+    {
+      "name": "Ember",
+      "site": "https://emberjs.org/",
+      "description": "Ambitious web apps.",
+      "rating": 5
+    },
+    {
+      "name": "React",
+      "site": "https://faceboo.github.io/react",
+      "description": "A javascript library for building user interfaces.",
+      "rating": 8
+    },
+    {
+      "name": "Underscore",
+      "site": "https://underscorejs.org/",
+      "description": "A whole mess of useful functional programming helpers.",
+      "rating": 9
+    },
+    {
+      "name": "Elm",
+      "site": "https://elm-lang.org/",
+      "description": "A delightful language for reliable web apps.",
+      "rating": 7.5
+    },
+    {
+      "name": "Reason",
+      "site": "https://reasonml.github.io/",
+      "description": "Flexible & Fun.",
+      "rating": 5.5
+    }
+  ]
+}

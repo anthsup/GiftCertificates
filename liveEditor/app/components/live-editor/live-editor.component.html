@@ -1,0 +1,7 @@
+<div class="live-editor-wrapper">
+    <div class="input-area">
+        <textarea name="live-editor-area" id="live-editor-area" cols="30" rows="10" ng-model="$ctrl.input"></textarea>
+    </div>
+
+    <div class="output-area" ng-bind-html="$ctrl.input | liveEditor"></div>
+</div>
